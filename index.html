@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El Arte de Trabajar con Claude</title>
+<meta name="description" content="Guía práctica en formato libro para usar Claude de forma profesional: fundamentos, técnicas, ejemplos y ejercicios.">
+<meta property="og:title" content="El Arte de Trabajar con Claude">
+<meta property="og:description" content="Guía práctica en formato libro para usar Claude de forma profesional, con ejemplos y ejercicios.">
+<meta property="og:type" content="book">
+<meta name="theme-color" content="#b85c38">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf7f2; --paper:#ffffff; --ink:#1f1d1a; --muted:#6b655c; --line:#e6e0d6;
+  --accent:#b85c38; --accent-soft:#f6e7df; --good:#2f7a4f; --good-soft:#e5f2ea;
+  --bad:#a63d3d; --bad-soft:#f7e4e4; --note:#2d5f8a; --note-soft:#e3edf6;
+  --code-bg:#f3efe8; --side:280px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#171614; --paper:#1f1e1b; --ink:#ece7df; --muted:#a39c90; --line:#34312c;
+    --accent:#e08a63; --accent-soft:#3a2a22; --good:#6cc48f; --good-soft:#1f3328;
+    --bad:#e27b7b; --bad-soft:#3a2323; --note:#7fb0dc; --note-soft:#1f2c38; --code-bg:#2a2824;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#171614; --paper:#1f1e1b; --ink:#ece7df; --muted:#a39c90; --line:#34312c;
+  --accent:#e08a63; --accent-soft:#3a2a22; --good:#6cc48f; --good-soft:#1f3328;
+  --bad:#e27b7b; --bad-soft:#3a2323; --note:#7fb0dc; --note-soft:#1f2c38; --code-bg:#2a2824;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.7 Inter,system-ui,sans-serif}
+a{color:var(--accent)}
+/* Barra superior */
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--paper);border-bottom:1px solid var(--line)}
+.topbar .brand{font-family:Fraunces,serif;font-weight:700;font-size:1.05rem;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:6px 10px;font:inherit;font-size:.85rem;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+#menuBtn{display:none}
+/* Diseño */
+.layout{display:flex;max-width:1280px;margin:0 auto}
+nav.toc{width:var(--side);flex-shrink:0;position:sticky;top:53px;height:calc(100vh - 53px);overflow-y:auto;padding:24px 16px;border-right:1px solid var(--line);font-size:.9rem}
+nav.toc h3{font-family:Fraunces,serif;margin:0 0 10px;font-size:1rem}
+nav.toc ol{list-style:none;padding:0;margin:0}
+nav.toc li.toc-part{margin:16px 0 4px;padding:0 10px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.part-divider{margin:72px 0 0;padding:40px 24px;border-radius:14px;background:var(--accent-soft);text-align:center}
+.part-divider .kicker{text-transform:uppercase;letter-spacing:.15em;font-size:.8rem;color:var(--accent);font-weight:600}
+.part-divider h2{font-size:clamp(1.8rem,5vw,2.6rem);margin:.2em 0}
+.part-divider p{color:var(--muted);margin:0 auto;max-width:560px}
+ol.steps{counter-reset:paso;list-style:none;padding:0}
+ol.steps > li{counter-increment:paso;position:relative;padding:10px 0 10px 48px;border-bottom:1px dashed var(--line)}
+ol.steps > li:last-child{border-bottom:none}
+ol.steps > li::before{content:counter(paso);position:absolute;left:0;top:10px;width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;font-weight:600;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0;font-size:.9rem}
+.flow span{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:6px 12px}
+.flow b{color:var(--accent)}
+.toc-search{width:100%;margin:0 0 12px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;font-size:.85rem}
+.toc-search:focus{outline:2px solid var(--accent);outline-offset:1px}
+.toc-empty{color:var(--muted);font-size:.85rem;padding:0 10px}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:30;transition:width .1s}
+#toTop{position:fixed;right:16px;bottom:16px;z-index:25;width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity .2s}
+#toTop.show{opacity:1;pointer-events:auto}
+.index-page{padding-top:8px}
+.index-part{font-size:1.05rem;color:var(--accent);margin:28px 0 12px}
+.index-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.index-card{display:flex;flex-direction:column;gap:2px;padding:14px 16px;background:var(--paper);border:1px solid var(--line);border-radius:12px;text-decoration:none;color:var(--ink);transition:border-color .15s,transform .15s}
+.index-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.index-card .n{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.index-card strong{font-family:Fraunces,serif;font-size:1.05rem;line-height:1.3}
+.index-card .d{font-size:.85rem;color:var(--muted);line-height:1.45}
+.chap-nav{display:flex;justify-content:space-between;gap:12px;margin-top:36px;flex-wrap:wrap}
+.chap-nav a{flex:1 1 220px;display:block;padding:12px 16px;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);background:var(--paper)}
+.chap-nav a:hover{border-color:var(--accent)}
+.chap-nav a small{display:block;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.08em}
+.chap-nav a.next{text-align:right}
+.chap-nav .up{flex:0 0 auto;align-self:center;font-size:.85rem}
+@media print{#progress,#toTop,.chap-nav,.toc-search,.index-page{display:none!important}}
+nav.toc li a{display:block;padding:5px 10px;border-radius:6px;text-decoration:none;color:var(--muted)}
+nav.toc li a:hover,nav.toc li a.active{background:var(--accent-soft);color:var(--ink)}
+main{flex:1;min-width:0;padding:32px 40px 80px;max-width:860px}
+/* Tipografía de libro */
+h1,h2,h3,h4{font-family:Fraunces,serif;line-height:1.25}
+.cover{padding:48px 0 32px;border-bottom:1px solid var(--line);margin-bottom:24px}
+.cover .kicker{text-transform:uppercase;letter-spacing:.15em;font-size:.8rem;color:var(--accent);font-weight:600}
+.cover h1{font-size:clamp(2.2rem,6vw,3.4rem);margin:.2em 0}
+.cover p.sub{font-size:1.15rem;color:var(--muted);margin:0}
+section.chapter{padding-top:32px;border-top:1px solid var(--line);margin-top:48px}
+section.chapter:first-of-type{border-top:none}
+.chap-num{display:block;font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);font-family:Inter,sans-serif;font-weight:600;margin-bottom:4px}
+h2{font-size:2rem;margin:0 0 .4em}
+h3{font-size:1.35rem;margin-top:1.8em}
+h4{font-size:1.1rem;margin-top:1.4em}
+.lead{font-size:1.1rem;color:var(--muted)}
+code{font-family:"JetBrains Mono",monospace;font-size:.88em;background:var(--code-bg);padding:1px 5px;border-radius:4px}
+/* Cajas */
+.box{border-radius:10px;padding:14px 18px;margin:18px 0;border-left:4px solid}
+.box > :first-child{margin-top:0}.box > :last-child{margin-bottom:0}
+.box .label{display:block;font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.objectives{background:var(--accent-soft);border-color:var(--accent)}
+.note{background:var(--note-soft);border-color:var(--note)}
+.good{background:var(--good-soft);border-color:var(--good)}
+.bad{background:var(--bad-soft);border-color:var(--bad)}
+.good .label{color:var(--good)}.bad .label{color:var(--bad)}.note .label{color:var(--note)}.objectives .label{color:var(--accent)}
+.prompt{position:relative;background:var(--code-bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:14px 0;font-family:"JetBrains Mono",monospace;font-size:.85rem;line-height:1.6;white-space:pre-wrap;word-wrap:break-word}
+.prompt .copy{position:absolute;top:8px;right:8px;font-family:Inter,sans-serif;font-size:.75rem;padding:3px 8px}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.compare .box{margin:0}
+/* Ejercicios */
+.exercise{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin:18px 0}
+.exercise h4{margin:0 0 8px}
+.exercise h4::before{content:"✎ ";color:var(--accent)}
+details{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
+summary{cursor:pointer;font-weight:600;color:var(--accent)}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--code-bg)}
+.checklist li{list-style:none;margin-left:-1.2em}
+.checklist li::before{content:"☐ ";color:var(--accent)}
+footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+/* Móvil */
+@media (max-width:900px){
+  #menuBtn{display:inline-block}
+  nav.toc{position:fixed;left:0;top:53px;z-index:15;background:var(--paper);transform:translateX(-100%);transition:transform .25s;box-shadow:4px 0 20px rgba(0,0,0,.15)}
+  nav.toc.open{transform:none}
+  main{padding:20px 16px 60px}
+  .compare{grid-template-columns:1fr}
+  body{font-size:16px}
+}
+/* Impresión */
+@media print{
+  .topbar,nav.toc,.copy{display:none!important}
+  main{max-width:none;padding:0}
+  section.chapter{page-break-before:always;border:none}
+  details{display:block}details > *{display:block}
+  body{background:#fff;color:#000}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <button class="btn" id="menuBtn" aria-label="Abrir índice">☰ Índice</button>
+  <span class="brand">El Arte de Trabajar con Claude</span>
+  <button class="btn" id="themeBtn" aria-label="Cambiar tema">◐ Tema</button>
+</header>
+
+<div class="layout">
+<nav class="toc" id="toc">
+  <h3>Contenido</h3>
+  <input type="search" id="tocSearch" class="toc-search" placeholder="Buscar capítulo o tema…" aria-label="Buscar en el índice">
+  <p class="toc-empty" id="tocEmpty" hidden>Sin resultados.</p>
+  <ol>
+    <li><a href="#indice">Índice general</a></li>
+    <li class="toc-part">Parte I · Fundamentos</li>
+    <li><a href="#prologo">Prólogo</a></li>
+    <li><a href="#cap1">1. Conocer a tu colaborador</a></li>
+    <li><a href="#cap2">2. Anatomía de un buen prompt</a></li>
+    <li><a href="#cap3">3. Técnicas avanzadas</a></li>
+    <li><a href="#cap4">4. El arte de iterar</a></li>
+    <li><a href="#cap5">5. Las herramientas de la app</a></li>
+    <li><a href="#cap6">6. Claude en el trabajo profesional</a></li>
+    <li><a href="#cap7">7. Claude en la educación</a></li>
+    <li><a href="#cap8">8. Ética, honestidad y verificación</a></li>
+    <li><a href="#cap9">9. Biblioteca de plantillas</a></li>
+    <li class="toc-part">Parte II · Nivel 2</li>
+    <li><a href="#intro2">Introducción al nivel 2</a></li>
+    <li><a href="#cap10">10. Preparar tu equipo</a></li>
+    <li><a href="#cap11">11. Organizar documentos</a></li>
+    <li><a href="#cap12">12. Conectar tus aplicaciones</a></li>
+    <li><a href="#cap13">13. Sincronizar sin perder nada</a></li>
+    <li><a href="#cap14">14. Navegador y control del equipo</a></li>
+    <li><a href="#cap15">15. Automatizar más allá del texto</a></li>
+    <li><a href="#cap16">16. Tareas programadas</a></li>
+    <li><a href="#cap17">17. Seguridad en el nivel 2</a></li>
+    <li><a href="#cap18">18. Conectar Claude con tu GitHub</a></li>
+    <li><a href="#apendices">Apéndices</a></li>
+  </ol>
+</nav>
+
+<main>
+<!-- ============ PORTADA ============ -->
+<div class="cover">
+  <span class="kicker">Guía práctica · Edición 2026</span>
+  <h1>El Arte de Trabajar con Claude</h1>
+  <p class="sub">Un manual para pasar de "hacerle preguntas a una IA" a colaborar con ella de forma profesional, honesta y eficaz.</p>
+  <p class="sub" style="margin-top:12px;font-size:1rem"><strong>Parte I</strong> · Fundamentos del trabajo con Claude &nbsp;|&nbsp; <strong>Parte II</strong> · <a href="#parte2">Claude como asistente de trabajo</a></p>
+</div>
+
+<!-- ============ ÍNDICE GENERAL ============ -->
+<section class="index-page" id="indice">
+  <h2>Índice general</h2>
+  <p class="lead">Elige por dónde empezar. Si es tu primera vez, sigue el orden; si ya usas Claude a diario, salta a la Parte II.</p>
+
+  <h3 class="index-part">Parte I · Fundamentos del trabajo con Claude</h3>
+  <div class="index-grid">
+    <a class="index-card" href="#prologo"><span class="n">Prólogo</span><strong>Cómo leer este libro</strong><span class="d">Estructura de los capítulos y advertencias.</span></a>
+    <a class="index-card" href="#cap1"><span class="n">Capítulo 1</span><strong>Conocer a tu colaborador</strong><span class="d">Qué es Claude, fortalezas y límites.</span></a>
+    <a class="index-card" href="#cap2"><span class="n">Capítulo 2</span><strong>Anatomía de un buen prompt</strong><span class="d">El método C.O.R.E.F.</span></a>
+    <a class="index-card" href="#cap3"><span class="n">Capítulo 3</span><strong>Técnicas avanzadas</strong><span class="d">Ejemplos, etiquetas, razonamiento y cadenas.</span></a>
+    <a class="index-card" href="#cap4"><span class="n">Capítulo 4</span><strong>El arte de iterar</strong><span class="d">Retroalimentación que funciona.</span></a>
+    <a class="index-card" href="#cap5"><span class="n">Capítulo 5</span><strong>Las herramientas de la app</strong><span class="d">Archivos, búsqueda, Proyectos y memoria.</span></a>
+    <a class="index-card" href="#cap6"><span class="n">Capítulo 6</span><strong>Claude en el trabajo profesional</strong><span class="d">Escritura, datos, código y decisiones.</span></a>
+    <a class="index-card" href="#cap7"><span class="n">Capítulo 7</span><strong>Claude en la educación</strong><span class="d">Tutor socrático y material docente.</span></a>
+    <a class="index-card" href="#cap8"><span class="n">Capítulo 8</span><strong>Ética, honestidad y verificación</strong><span class="d">Verificar, privacidad e integridad.</span></a>
+    <a class="index-card" href="#cap9"><span class="n">Capítulo 9</span><strong>Biblioteca de plantillas</strong><span class="d">Diez prompts listos para copiar.</span></a>
+  </div>
+
+  <h3 class="index-part">Parte II · Claude como asistente de trabajo</h3>
+  <div class="index-grid">
+    <a class="index-card" href="#intro2"><span class="n">Introducción</span><strong>Qué cambia en el nivel 2</strong><span class="d">De conversar a actuar.</span></a>
+    <a class="index-card" href="#cap10"><span class="n">Capítulo 10</span><strong>Preparar tu equipo</strong><span class="d">Qué instalar, paso a paso.</span></a>
+    <a class="index-card" href="#cap11"><span class="n">Capítulo 11</span><strong>Organizar documentos</strong><span class="d">Ordenar, renombrar, extraer y convertir.</span></a>
+    <a class="index-card" href="#cap12"><span class="n">Capítulo 12</span><strong>Conectar tus aplicaciones</strong><span class="d">Conectores y extensiones de escritorio.</span></a>
+    <a class="index-card" href="#cap13"><span class="n">Capítulo 13</span><strong>Sincronizar sin perder nada</strong><span class="d">Nube, GitHub y varios dispositivos.</span></a>
+    <a class="index-card" href="#cap14"><span class="n">Capítulo 14</span><strong>Navegador y control del equipo</strong><span class="d">Sitios sin conector y programas instalados.</span></a>
+    <a class="index-card" href="#cap15"><span class="n">Capítulo 15</span><strong>Automatizar más allá del texto</strong><span class="d">Archivos reales, scripts y habilidades.</span></a>
+    <a class="index-card" href="#cap16"><span class="n">Capítulo 16</span><strong>Tareas programadas</strong><span class="d">Trabajo que se hace solo, con horario.</span></a>
+    <a class="index-card" href="#cap17"><span class="n">Capítulo 17</span><strong>Seguridad en el nivel 2</strong><span class="d">Permisos mínimos y cómo revertir.</span></a>
+    <a class="index-card" href="#cap18"><span class="n">Capítulo 18</span><strong>Conectar Claude con tu GitHub</strong><span class="d">Que Claude publique y actualice tus repositorios.</span></a>
+    <a class="index-card" href="#apendices"><span class="n">Apéndices</span><strong>Herramientas de consulta</strong><span class="d">Checklist, glosario, recursos y reto final.</span></a>
+  </div>
+</section>
+
+<!-- ============ PRÓLOGO ============ -->
+<section class="chapter" id="prologo">
+  <span class="chap-num">Prólogo</span>
+  <h2>Cómo leer este libro</h2>
+  <p class="lead">Este libro está escrito para cualquier persona —docente, estudiante, profesional o curiosa— que quiera obtener resultados de calidad al trabajar con Claude, el asistente de inteligencia artificial creado por Anthropic.</p>
+  <p>Cada capítulo sigue la misma estructura:</p>
+  <ul>
+    <li><strong>Objetivos:</strong> lo que sabrás hacer al terminar.</li>
+    <li><strong>Explicación:</strong> los conceptos, sin tecnicismos innecesarios.</li>
+    <li><strong>Ejemplos comparados:</strong> un prompt débil frente a uno fuerte, para que veas la diferencia.</li>
+    <li><strong>Ejercicios:</strong> prácticas con una solución propuesta que puedes desplegar.</li>
+  </ul>
+  <div class="box note">
+    <span class="label">Una advertencia honesta</span>
+    <p>Esta es una guía <strong>independiente y no oficial</strong>. No está afiliada ni respaldada por Anthropic. Los productos de IA cambian rápido: las funciones, nombres y planes pueden variar. Ante cualquier duda sobre el producto, consulta la documentación oficial enlazada en los apéndices.</p>
+  </div>
+  <p>Consejo: no leas este libro de corrido. Lee un capítulo, abre Claude y haz los ejercicios. Se aprende a escribir buenos prompts escribiéndolos.</p>
+</section>
+
+<!-- ============ CAPÍTULO 1 ============ -->
+<section class="chapter" id="cap1">
+  <span class="chap-num">Capítulo 1</span>
+  <h2>Conocer a tu colaborador</h2>
+  <div class="box objectives">
+    <span class="label">Objetivos</span>
+    <ul>
+      <li>Entender qué es Claude y qué no es.</li>
+      <li>Identificar sus fortalezas y sus límites.</li>
+      <li>Adoptar la mentalidad correcta: delegar como a un colega, no buscar como en Google.</li>
+    </ul>
+  </div>
+
+  <h3>1.1 ¿Qué es Claude?</h3>
+  <p>Claude es un modelo de lenguaje: un sistema entrenado con enormes cantidades de texto que aprendió a comprender y producir lenguaje, razonar sobre problemas, escribir código y analizar información. No "busca" respuestas en una base de datos: <em>genera</em> cada respuesta a partir de lo que aprendió y de lo que tú le das en la conversación.</p>
+  <p>Esta diferencia es la clave de todo el libro: <strong>la calidad de la respuesta depende en gran medida de la calidad del contexto que le das.</strong></p>
+
+  <h3>1.2 La metáfora del colega brillante recién llegado</h3>
+  <p>Imagina que contratas a una persona muy capaz, que ha leído muchísimo, pero que acaba de llegar a tu organización. No conoce a tu equipo, ni a tu público, ni tus estándares, ni lo que intentaste antes. Si le dices "hazme un informe", te dará algo genérico. Si le explicas para quién es, qué decisión debe apoyar y cómo lo quieres, te dará algo excelente.</p>
+  <p>Así funciona Claude. Cada conversación nueva empieza, en principio, sin saber nada de ti (salvo lo que guarden funciones como la memoria o los Proyectos, que veremos en el capítulo 5).</p>
+
+  <h3>1.3 Fortalezas</h3>
+  <table>
+    <tr><th>Área</th><th>En qué destaca</th></tr>
+    <tr><td>Escritura</td><td>Redactar, reescribir, ajustar tono, resumir, traducir.</td></tr>
+    <tr><td>Razonamiento</td><td>Analizar problemas en pasos, comparar opciones, detectar fallas en un argumento.</td></tr>
+    <tr><td>Código</td><td>Escribir, explicar y depurar programas en muchos lenguajes.</td></tr>
+    <tr><td>Análisis</td><td>Leer documentos largos, extraer datos, encontrar patrones.</td></tr>
+    <tr><td>Enseñanza</td><td>Explicar un concepto a distintos niveles, crear ejercicios, dar retroalimentación.</td></tr>
+  </table>
+
+  <h3>1.4 Límites que debes conocer</h3>
+  <ul>
+    <li><strong>Puede equivocarse con seguridad.</strong> A veces produce datos, citas o referencias que suenan correctos pero no lo son (se les llama "alucinaciones"). Verifica siempre lo importante.</li>
+    <li><strong>Tiene una fecha de corte de conocimiento.</strong> Lo que ocurrió después de su entrenamiento solo lo sabrá si usa búsqueda web o si tú se lo das.</li>
+    <li><strong>No te conoce</strong> a menos que le des contexto.</li>
+    <li><strong>No es un profesional certificado.</strong> En temas médicos, legales o financieros, úsalo para entender y preparar preguntas, no como sustituto de un experto.</li>
+  </ul>
+
+  <div class="box note">
+    <span class="label">Idea central</span>
+    <p>Claude es un multiplicador de tu criterio, no un reemplazo. Tú defines el objetivo y validas el resultado; Claude acelera el camino.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 1.1 — Pon a prueba sus límites</h4>
+    <p>Pregúntale a Claude por un dato muy específico y reciente (por ejemplo, un resultado deportivo de esta semana) con la búsqueda web desactivada y luego activada. Compara las respuestas.</p>
+    <details><summary>Qué deberías observar</summary>
+      <p>Sin búsqueda, Claude debería advertirte que su información puede estar desactualizada. Con búsqueda, debería citar fuentes. Lección: para información actual, activa la búsqueda o aporta tú la fuente.</p>
+    </details>
+  </div>
+  <div class="exercise">
+    <h4>Ejercicio 1.2 — Del buscador al colega</h4>
+    <p>Transforma esta consulta "estilo buscador" en una delegación "estilo colega": <code>mejores técnicas de estudio</code>.</p>
+    <details><summary>Solución propuesta</summary>
+      <div class="prompt">Soy estudiante de primer semestre de ingeniería. Tengo parciales de cálculo y física en tres semanas y trabajo medio tiempo, así que solo puedo estudiar 2 horas al día. Recomiéndame 3 técnicas de estudio con respaldo en investigación, explica por qué funcionan y arma un plan semanal concreto para aplicarlas.</div>
+    </details>
+  </div>
+</section>
+
+<!-- ============ CAPÍTULO 2 ============ -->
+<section class="chapter" id="cap2">
+  <span class="chap-num">Capítulo 2</span>
+  <h2>Anatomía de un buen prompt</h2>
+  <div class="box objectives">
+    <span class="label">Objetivos</span>
+    <ul>
+      <li>Conocer los cinco componentes de un prompt eficaz.</li>
+      <li>Aplicar el método <strong>C.O.R.E.F.</strong> para estructurar cualquier petición.</li>
+      <li>Reconocer y corregir los errores más comunes.</li>
+    </ul>
+  </div>
+
+  <h3>2.1 El método C.O.R.E.F.</h3>
+  <p>Un prompt es simplemente la instrucción que le das a Claude. Para que sea bueno, conviene que tenga estos cinco elementos:</p>
+  <table>
+    <tr><th>Letra</th><th>Componente</th><th>Pregunta guía</th></tr>
+    <tr><td><strong>C</strong></td><td>Contexto</td><td>¿Qué situación, público y antecedentes necesita conocer?</td></tr>
+    <tr><td><strong>O</strong></td><td>Objetivo</td><td>¿Qué quiero exactamente y para qué servirá?</td></tr>
+    <tr><td><strong>R</strong></td><td>Restricciones</td><td>¿Qué límites hay? Extensión, tono, lo que debe evitar.</td></tr>
+    <tr><td><strong>E</strong></td><td>Ejemplos</td><td>¿Puedo mostrar cómo luce un buen resultado?</td></tr>
+    <tr><td><strong>F</strong></td><td>Formato</td><td>¿Cómo quiero recibirlo? Tabla, lista, correo, código…</td></tr>
+  </table>
+  <p>No siempre necesitas los cinco. Una pregunta sencilla no requiere ejemplos. Pero cuanto más importante sea el resultado, más elementos conviene incluir.</p>
+
+  <h3>2.2 El poder del "para qué"</h3>
+  <p>El componente más subestimado es el propósito. Decir <em>para qué</em> necesitas algo le permite a Claude tomar buenas decisiones que tú no especificaste.</p>
+  <div class="compare">
+    <div class="box bad"><span class="label">Débil</span><p>"Resume este artículo."</p></div>
+    <div class="box good"><span class="label">Fuerte</span><p>"Resume este artículo en 5 puntos para presentarlo a mi jefe, que tiene 2 minutos y quiere saber si afecta nuestro presupuesto del próximo año."</p></div>
+  </div>
+
+  <h3>2.3 Sé explícito con lo que quieres</h3>
+  <p>Claude sigue las instrucciones con bastante precisión. Si quieres algo ambicioso, pídelo. Si quieres algo breve, dilo. No asumas que "adivinará" que querías más detalle.</p>
+  <div class="compare">
+    <div class="box bad"><span class="label">Débil</span><p>"Haz una página web de mi panadería."</p></div>
+    <div class="box good"><span class="label">Fuerte</span><p>"Haz una página web de una sola sección para mi panadería artesanal 'La Espiga'. Incluye: menú con precios, horario, ubicación y botón de WhatsApp. Estilo cálido, colores tierra, que funcione bien en celular."</p></div>
+  </div>
+
+  <h3>2.4 Instrucciones positivas mejor que negativas</h3>
+  <p>Es más efectivo decir qué hacer que qué no hacer. En lugar de "no uses lenguaje técnico", di "explícalo con palabras que entendería un estudiante de bachillerato".</p>
+
+  <h3>2.5 Un prompt completo, paso a paso</h3>
+  <div class="prompt">[Contexto] Soy coordinadora de una fundación que enseña programación a jóvenes de 15 a 18 años en barrios populares.
+[Objetivo] Necesito un correo para invitar a empresas locales a donar computadores usados.
+[Restricciones] Máximo 200 palabras, tono cercano pero profesional, sin sonar a súplica. Debe mencionar que emitimos certificado de donación.
+[Ejemplo] Me gusta cómo empiezan los correos de este estilo: "Hay un computador en su oficina que podría cambiar una vida."
+[Formato] Dame asunto y cuerpo, y luego 2 variantes del asunto.</div>
+
+  <h3>2.6 Errores frecuentes</h3>
+  <ul>
+    <li><strong>Prompt telegráfico:</strong> "ensayo cambio climático". Falta todo.</li>
+    <li><strong>Contexto enterrado:</strong> poner lo importante al final de tres párrafos irrelevantes.</li>
+    <li><strong>Peticiones contradictorias:</strong> "muy detallado pero en una línea".</li>
+    <li><strong>Esperar lectura de mente:</strong> no decir el público, el nivel ni el uso.</li>
+  </ul>
+
+  <div class="exercise">
+    <h4>Ejercicio 2.1 — Aplica C.O.R.E.F.</h4>
+    <p>Mejora este prompt: <code>hazme una presentación sobre la fotosíntesis</code>.</p>
+    <details><summary>Solución propuesta</summary>
+      <div class="prompt">Soy docente de biología de grado 7.º (estudiantes de 12 años). Necesito una presentación de 8 diapositivas sobre la fotosíntesis para una clase de 45 minutos. Debe incluir: una pregunta inicial que despierte curiosidad, la ecuación explicada con palabras simples, un experimento casero y 3 preguntas de cierre. Tono entusiasta. Por cada diapositiva dame título, contenido breve y una sugerencia de imagen.</div>
+    </details>
+  </div>
+  <div class="exercise">
+    <h4>Ejercicio 2.2 — Detecta lo que falta</h4>
+    <p>¿Qué componentes de C.O.R.E.F. le faltan a este prompt? <code>Escribe una carta de renuncia formal, de una página.</code></p>
+    <details><summary>Solución</summary>
+      <p>Tiene <strong>Formato</strong> (carta, una página) y algo de <strong>Restricción</strong> (formal). Falta <strong>Contexto</strong> (cargo, tiempo en la empresa, relación con el jefe), <strong>Objetivo</strong> (¿quieres dejar la puerta abierta? ¿pedir una carta de recomendación?) y una <strong>restricción</strong> clave: la fecha de salida y el preaviso.</p>
+    </details>
+  </div>
+  <div class="exercise">
+    <h4>Ejercicio 2.3 — De negativo a positivo</h4>
+    <p>Reescribe en positivo: "No seas aburrido, no uses frases largas y no te enrolles."</p>
+    <details><summary>Solución propuesta</summary>
+      <p>"Escribe con frases cortas, ritmo ágil y un ejemplo cotidiano por cada idea. Ve directo al punto."</p>
+    </details>
+  </div>
+</section>
+
+<!-- ============ CAPÍTULO 3 ============ -->
+<section class="chapter" id="cap3">
+  <span class="chap-num">Capítulo 3</span>
+  <h2>Técnicas avanzadas</h2>
+  <div class="box objectives">
+    <span class="label">Objetivos</span>
+    <ul>
+      <li>Usar ejemplos para guiar el estilo (few-shot).</li>
+      <li>Organizar prompts largos con etiquetas.</li>
+      <li>Pedir razonamiento paso a paso y autocrítica.</li>
+      <li>Dividir tareas complejas en cadenas de pasos.</li>
+    </ul>
+  </div>
+
+  <h3>3.1 Enseñar con ejemplos</h3>
+  <p>Mostrar dos o tres ejemplos del resultado que esperas es una de las técnicas más poderosas. Claude capta el patrón: tono, longitud, estructura.</p>
+  <div class="prompt">Clasifica los comentarios de clientes como POSITIVO, NEGATIVO o MIXTO, con una razón de máximo 8 palabras.
+
+Ejemplos:
+"El envío llegó rápido y el producto es excelente" → POSITIVO (rapidez y calidad)
+"Buen precio, pero llegó roto" → MIXTO (precio bueno, producto dañado)
+
+Ahora clasifica:
+1. "Nunca respondieron mis correos"
+2. "Me encantó, aunque la caja era fea"</div>
+  <div class="box note"><span class="label">Consejo</span><p>Varía tus ejemplos. Si todos se parecen demasiado, Claude puede copiar detalles que no querías (por ejemplo, la misma longitud o las mismas palabras).</p></div>
+
+  <h3>3.2 Etiquetas para separar las partes</h3>
+  <p>Cuando tu prompt incluye documentos, datos e instrucciones a la vez, envolver cada parte en etiquetas tipo XML evita confusiones. Puedes inventar los nombres que quieras.</p>
+  <div class="prompt">&lt;contrato&gt;
+[pega aquí el texto del contrato]
+&lt;/contrato&gt;
+
+&lt;mis_preocupaciones&gt;
+Me preocupa la cláusula de permanencia y las multas por terminación anticipada.
+&lt;/mis_preocupaciones&gt;
+
+Analiza el &lt;contrato&gt; con foco en &lt;mis_preocupaciones&gt;. Explícalo en lenguaje sencillo y dime qué preguntas debería hacerle a un abogado.</div>
+
+  <h3>3.3 Pensar paso a paso</h3>
+  <p>Para problemas de lógica, matemáticas, análisis o decisiones, pedir que razone antes de concluir mejora la calidad y te permite revisar el proceso.</p>
+  <div class="prompt">Tengo que elegir entre dos ofertas de trabajo (detalles abajo). Antes de recomendarme una, analiza paso a paso: salario neto real, costo de transporte, crecimiento profesional y calidad de vida. Al final, da tu recomendación y qué información cambiaría tu conclusión.</div>
+
+  <h3>3.4 Asignar un rol (con moderación)</h3>
+  <p>Decir "actúa como editor de una revista científica" ayuda a fijar el nivel y el enfoque. Funciona mejor si añades <em>qué hace</em> ese rol: "revisa como lo haría un editor exigente: busca afirmaciones sin respaldo y párrafos que no aportan".</p>
+
+  <h3>3.5 La autocrítica</h3>
+  <p>Puedes pedirle a Claude que revise su propio trabajo contra criterios explícitos.</p>
+  <div class="prompt">Revisa el texto que acabas de escribir con estos criterios: (1) ¿cada párrafo tiene una sola idea?, (2) ¿hay alguna afirmación que necesite fuente?, (3) ¿el cierre invita a la acción? Señala los problemas y luego entrega la versión corregida.</div>
+
+  <h3>3.6 Encadenar tareas</h3>
+  <p>Las tareas grandes salen mejor divididas. En lugar de "escríbeme un libro", trabaja por etapas:</p>
+  <ol>
+    <li>Lluvia de ideas → eliges la mejor.</li>
+    <li>Índice detallado → lo ajustas.</li>
+    <li>Capítulo por capítulo → revisas cada uno.</li>
+    <li>Revisión final de coherencia.</li>
+  </ol>
+  <p>Cada etapa te da un punto de control para corregir el rumbo antes de invertir más esfuerzo.</p>
+
+  <h3>3.7 Dejar que pregunte</h3>
+  <p>Cuando no tienes claro todo lo que Claude necesita saber, invierte el proceso:</p>
+  <div class="prompt">Quiero crear un plan de negocio para una tienda de bicicletas. Antes de empezar, hazme las 5 preguntas más importantes que necesitas para hacerlo bien.</div>
+
+  <div class="exercise">
+    <h4>Ejercicio 3.1 — Few-shot</h4>
+    <p>Crea un prompt con dos ejemplos para que Claude convierta frases formales en mensajes de WhatsApp cercanos.</p>
+    <details><summary>Solución propuesta</summary>
+      <div class="prompt">Convierte frases formales en mensajes de WhatsApp cercanos y breves.
+
+"Le informamos que la reunión ha sido reprogramada" → "¡Hola! Te cuento que movimos la reunión 📅"
+"Agradecemos su pronta respuesta" → "¿Me confirmas cuando puedas? ¡Gracias!"
+
+Convierte: "Se solicita la entrega de los documentos antes del viernes."</div>
+    </details>
+  </div>
+  <div class="exercise">
+    <h4>Ejercicio 3.2 — Encadenamiento</h4>
+    <p>Diseña una cadena de 4 prompts para producir un artículo de blog de 1.000 palabras sobre ahorro personal.</p>
+    <details><summary>Solución propuesta</summary>
+      <ol>
+        <li>"Dame 10 ángulos originales para un artículo sobre ahorro dirigido a jóvenes de 20 a 30 años que viven solos."</li>
+        <li>"Con el ángulo 4, haz un esquema con título, 5 subtítulos y la idea clave de cada sección."</li>
+        <li>"Redacta el artículo siguiendo el esquema, unas 1.000 palabras, con un ejemplo con cifras en cada sección."</li>
+        <li>"Revisa el artículo: acorta frases largas, verifica que los cálculos sean correctos y propón 3 títulos alternativos."</li>
+      </ol>
+    </details>
+  </div>
+</section>
+
+<!-- ============ CAPÍTULO 4 ============ -->
+<section class="chapter" id="cap4">
+  <span class="chap-num">Capítulo 4</span>
+  <h2>El arte de iterar</h2>
+  <div class="box objectives">
+    <span class="label">Objetivos</span>
+    <ul>
+      <li>Entender que la primera respuesta es un borrador, no el final.</li>
+      <li>Dar retroalimentación específica y útil.</li>
+      <li>Saber cuándo continuar una conversación y cuándo empezar otra.</li>
+    </ul>
+  </div>
+
+  <h3>4.1 La conversación como taller</h3>
+  <p>Los mejores resultados rara vez salen en el primer intento. Trata la respuesta inicial como un primer borrador que vas a esculpir.</p>
+
+  <h3>4.2 Retroalimentación que funciona</h3>
+  <div class="compare">
+    <div class="box bad"><span class="label">Vaga</span><p>"No me gusta, mejóralo."</p></div>
+    <div class="box good"><span class="label">Específica</span><p>"El segundo párrafo es demasiado técnico para padres de familia. Reemplaza 'competencias' por un ejemplo concreto de lo que el niño aprenderá. Mantén el resto igual."</p></div>
+  </div>
+  <p>Una buena retroalimentación dice <strong>qué</strong> cambiar, <strong>por qué</strong>, y <strong>qué conservar</strong>.</p>
+
+  <h3>4.3 Frases útiles para iterar</h3>
+  <ul>
+    <li>"Mantén la estructura, pero cambia el tono a…"</li>
+    <li>"Dame tres versiones distintas para que elija."</li>
+    <li>"Hazlo un 30 % más corto sin perder los datos."</li>
+    <li>"¿Qué le falta a este texto para convencer a alguien escéptico?"</li>
+    <li>"Solo cambia la sección 3; no me reescribas todo."</li>
+  </ul>
+
+  <h3>4.4 ¿Seguir o empezar de nuevo?</h3>
+  <table>
+    <tr><th>Sigue en la misma conversación si…</th><th>Empieza una nueva si…</th></tr>
+    <tr><td>Estás refinando el mismo trabajo.</td><td>Cambias completamente de tema.</td></tr>
+    <tr><td>El contexto anterior sigue siendo útil.</td><td>La conversación se volvió muy larga y confusa.</td></tr>
+    <tr><td>Construyes sobre decisiones ya tomadas.</td><td>Quieres una perspectiva "limpia", sin sesgos previos.</td></tr>
+  </table>
+  <div class="box note"><span class="label">Truco</span><p>Antes de cambiar de conversación, pide: "Resume en 10 líneas las decisiones que tomamos y el estado actual del trabajo." Pega ese resumen al inicio de la nueva.</p></div>
+
+  <div class="exercise">
+    <h4>Ejercicio 4.1 — Convierte la queja en instrucción</h4>
+    <p>Transforma estas reacciones en retroalimentación útil: (a) "Está muy largo", (b) "Suena raro", (c) "No es lo que quería".</p>
+    <details><summary>Solución propuesta</summary>
+      <ul>
+        <li>(a) "Redúcelo a 150 palabras; prioriza la propuesta y el precio, elimina la historia de la empresa."</li>
+        <li>(b) "Suena demasiado formal para Instagram. Escríbelo como le hablarías a un amigo, con una pregunta al inicio."</li>
+        <li>(c) "Necesitaba una guía de pasos, no un ensayo. Conviértelo en una lista numerada de máximo 7 pasos."</li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<!-- ============ CAPÍTULO 5 ============ -->
+<section class="chapter" id="cap5">
+  <span class="chap-num">Capítulo 5</span>
+  <h2>Las herramientas de la app</h2>
+  <div class="box objectives">
+    <span class="label">Objetivos</span>
+    <ul>
+      <li>Conocer las principales funciones de la aplicación de Claude.</li>
+      <li>Saber cuándo conviene usar cada una.</li>
+    </ul>
+  </div>
+  <div class="box note"><span class="label">Importante</span><p>Las funciones disponibles dependen de tu plan y cambian con el tiempo. Este capítulo describe para qué sirve cada una; para instrucciones exactas consulta el centro de ayuda oficial (<a href="https://support.claude.com" target="_blank" rel="noopener">support.claude.com</a>).</p></div>
+
+  <h3>5.1 Archivos adjuntos</h3>
+  <p>Puedes adjuntar PDF, documentos, hojas de cálculo e imágenes. Claude los lee y trabaja sobre ellos. Úsalo para resumir informes, extraer datos de tablas, revisar trabajos o analizar fotos de un ejercicio escrito a mano.</p>
+  <div class="prompt">Te adjunto el reglamento estudiantil. Hazme una tabla con las 10 normas que más afectan a un estudiante de primer año, indicando el artículo y una explicación de una línea.</div>
+
+  <h3>5.2 Búsqueda web</h3>
+  <p>Con la búsqueda activada, Claude puede consultar información actual y citar fuentes. Úsala para noticias, precios, normas vigentes o cualquier dato que pueda haber cambiado. Abre las fuentes citadas para verificar.</p>
+
+  <h3>5.3 Proyectos</h3>
+  <p>Un Proyecto agrupa conversaciones con instrucciones y documentos comunes. Si siempre trabajas en el mismo contexto (una materia, un cliente, una investigación), crea un Proyecto, sube los documentos de referencia una vez y escribe instrucciones permanentes como "responde siempre para estudiantes de grado 10".</p>
+
+  <h3>5.4 Artefactos y documentos</h3>
+  <p>Cuando pides algo que vas a conservar —un documento, una presentación, una página web, una herramienta interactiva— Claude puede crearlo como un contenido aparte que puedes ver, editar, descargar o compartir, en lugar de dejarlo perdido en el chat.</p>
+
+  <h3>5.5 Memoria y preferencias</h3>
+  <p>Claude puede recordar información entre conversaciones (si la función está activada) y seguir preferencias de estilo que tú definas. Puedes decirle explícitamente "recuerda que prefiero respuestas cortas" o pedirle que olvide algo. Tú controlas esta función desde la configuración.</p>
+
+  <h3>5.6 Habilidades (skills) y conectores</h3>
+  <p>Las habilidades son paquetes de instrucciones para tareas específicas (por ejemplo, crear un tipo de documento). Los conectores enlazan a Claude con tus aplicaciones, como el correo o el almacenamiento en la nube, para trabajar con tus propios datos.</p>
+
+  <h3>5.7 Modelos</h3>
+  <p>Anthropic ofrece varios modelos de Claude con distinto equilibrio entre capacidad y velocidad. En general: los modelos más grandes rinden mejor en tareas complejas y razonamiento profundo; los más ligeros son más rápidos para tareas sencillas. Elige según la exigencia de la tarea.</p>
+
+  <h3>5.8 Más allá del chat</h3>
+  <p>Para programadores existe <strong>Claude Code</strong> (trabajo de programación agéntico) y la <strong>API</strong> para integrar Claude en aplicaciones propias. La documentación para desarrolladores está en <a href="https://docs.claude.com" target="_blank" rel="noopener">docs.claude.com</a>.</p>
+
+  <div class="exercise">
+    <h4>Ejercicio 5.1 — Diseña tu Proyecto</h4>
+    <p>Elige un área de tu vida o trabajo que se repita cada semana. Escribe las instrucciones permanentes que le darías a un Proyecto y la lista de documentos que subirías.</p>
+    <details><summary>Ejemplo de solución</summary>
+      <div class="prompt">Proyecto: "Física 10.º"
+Instrucciones: Soy docente de física de grado 10. Mis estudiantes tienen entre 15 y 16 años y nivel matemático básico. Usa ejemplos de la vida diaria en Colombia. Cuando cree ejercicios, incluye siempre la solución paso a paso por separado. Usa unidades del Sistema Internacional.
+Documentos: plan de área, malla curricular del periodo, rúbrica de evaluación.</div>
+    </details>
+  </div>
+</section>
+
+<!-- ============ CAPÍTULO 6 ============ -->
+<section class="chapter" id="cap6">
+  <span class="chap-num">Capítulo 6</span>
+  <h2>Claude en el trabajo profesional</h2>
+  <div class="box objectives">
+    <span class="label">Objetivos</span>
+    <ul>
+      <li>Aplicar Claude a escritura, análisis, programación y gestión.</li>
+      <li>Conocer flujos de trabajo reales y reproducibles.</li>
+    </ul>
+  </div>
+
+  <h3>6.1 Escritura profesional</h3>
+  <p><strong>Flujo recomendado:</strong> tú aportas las ideas y los hechos; Claude estructura, pule y adapta el tono.</p>
+  <div class="prompt">Estas son mis notas desordenadas de la reunión: [notas]. Conviértelas en un acta con: asistentes, decisiones tomadas, tareas (responsable y fecha) y temas pendientes. No inventes nada que no esté en las notas; si algo es ambiguo, márcalo con [VERIFICAR].</div>
+  <div class="box note"><span class="label">Observa</span><p>La frase "no inventes nada… márcalo con [VERIFICAR]" es una protección honesta contra errores. Úsala siempre que trabajes con hechos.</p></div>
+
+  <h3>6.2 Análisis de datos</h3>
+  <div class="prompt">Adjunto las ventas mensuales de 2025 en Excel. 1) Describe las tendencias principales. 2) Identifica los 3 productos con mayor caída. 3) Propón 2 hipótesis para explicarla. 4) Hazme una gráfica de ventas por mes. Muestra los cálculos para que pueda revisarlos.</div>
+
+  <h3>6.3 Programación</h3>
+  <ul>
+    <li>Describe el entorno: lenguaje, versión, librerías.</li>
+    <li>Pega el error completo, no solo "no funciona".</li>
+    <li>Pide explicaciones además del código, para aprender y poder mantenerlo.</li>
+  </ul>
+  <div class="prompt">Uso Python 3.12 con pandas. Este código debería agrupar por ciudad pero me da KeyError: 'ciudad'. [código] [error completo]. Explícame la causa, corrígelo y dime cómo evitar este error en el futuro.</div>
+
+  <h3>6.4 Preparar decisiones</h3>
+  <div class="prompt">Estoy decidiendo si migrar nuestro equipo de 12 personas de hojas de cálculo a una herramienta de gestión de proyectos. Hazme una matriz de decisión con criterios ponderados, los riesgos de cada opción y las preguntas que debería hacerle al equipo antes de decidir. No me des la respuesta final: ayúdame a pensar.</div>
+
+  <h3>6.5 Preparar conversaciones difíciles</h3>
+  <div class="prompt">Tengo que darle retroalimentación negativa a un colaborador que es muy bueno técnicamente pero llega tarde a las reuniones. Ayúdame a preparar la conversación: cómo abrir, qué decir, posibles reacciones y cómo responder a cada una.</div>
+
+  <div class="exercise">
+    <h4>Ejercicio 6.1 — Protección contra inventos</h4>
+    <p>Escribe un prompt para convertir un audio transcrito de una entrevista en un artículo, asegurando que Claude no añada citas ni datos falsos.</p>
+    <details><summary>Solución propuesta</summary>
+      <div class="prompt">&lt;transcripcion&gt;[texto]&lt;/transcripcion&gt;
+Escribe un artículo de 600 palabras basado exclusivamente en la transcripción. Las citas textuales deben aparecer tal cual en el texto original. No agregues cifras, nombres ni hechos que no estén ahí. Al final, lista las afirmaciones que convendría verificar con el entrevistado.</div>
+    </details>
+  </div>
+</section>
+
+<!-- ============ CAPÍTULO 7 ============ -->
+<section class="chapter" id="cap7">
+  <span class="chap-num">Capítulo 7</span>
+  <h2>Claude en la educación</h2>
+  <div class="box objectives">
+    <span class="label">Objetivos</span>
+    <ul>
+      <li>Usar Claude como tutor que enseña, no que hace la tarea.</li>
+      <li>Crear material didáctico de calidad para docentes.</li>
+    </ul>
+  </div>
+
+  <h3>7.1 Para estudiantes: el tutor socrático</h3>
+  <p>El uso más valioso no es pedir la respuesta, sino pedir que te ayude a llegar a ella.</p>
+  <div class="prompt">Estoy aprendiendo derivadas. No me des la solución de este ejercicio: guíame con preguntas, una a la vez, y solo dame una pista si me equivoco dos veces. Ejercicio: derivar f(x) = x²·sen(x).</div>
+  <div class="prompt">Explícame el concepto de límite de tres formas: con una analogía cotidiana, con una gráfica descrita en palabras y con la definición formal. Luego hazme 3 preguntas para comprobar que entendí.</div>
+
+  <h3>7.2 Para docentes</h3>
+  <ul>
+    <li><strong>Diferenciar:</strong> "Adapta esta lectura a tres niveles: básico, intermedio y avanzado."</li>
+    <li><strong>Evaluar:</strong> "Crea una rúbrica de 4 niveles para un informe de laboratorio."</li>
+    <li><strong>Retroalimentar:</strong> "Revisa este ensayo de un estudiante y dame 3 fortalezas y 3 mejoras concretas, en tono motivador."</li>
+    <li><strong>Crear recursos:</strong> "Diseña 10 ejercicios de proporcionalidad contextualizados en un mercado campesino, con dificultad creciente y soluciones."</li>
+  </ul>
+  <div class="box note"><span class="label">Privacidad</span><p>No compartas datos personales identificables de estudiantes (nombres completos, documentos, calificaciones con nombre). Anonimiza antes de pegar.</p></div>
+
+  <div class="exercise">
+    <h4>Ejercicio 7.1 — Diseña un tutor</h4>
+    <p>Escribe un prompt para que Claude sea tu tutor de inglés durante 15 minutos de conversación práctica.</p>
+    <details><summary>Solución propuesta</summary>
+      <div class="prompt">Quiero practicar inglés conversacional; mi nivel es B1. Vamos a simular una entrevista de trabajo para un puesto de atención al cliente. Haz una pregunta a la vez. Después de cada respuesta mía, corrige máximo 2 errores importantes (en español, brevemente) y luego continúa la entrevista en inglés.</div>
+    </details>
+  </div>
+</section>
+
+<!-- ============ CAPÍTULO 8 ============ -->
+<section class="chapter" id="cap8">
+  <span class="chap-num">Capítulo 8</span>
+  <h2>Ética, honestidad y verificación</h2>
+  <div class="box objectives">
+    <span class="label">Objetivos</span>
+    <ul>
+      <li>Verificar la información de forma sistemática.</li>
+      <li>Proteger tu privacidad y la de otros.</li>
+      <li>Usar la IA con transparencia e integridad.</li>
+    </ul>
+  </div>
+
+  <h3>8.1 La regla de oro: tú eres responsable</h3>
+  <p>Todo lo que publiques, entregues o envíes con ayuda de Claude es tu responsabilidad. La IA es una herramienta; la firma es tuya.</p>
+
+  <h3>8.2 Cómo verificar</h3>
+  <ol>
+    <li><strong>Datos y cifras:</strong> contrástalos con una fuente primaria.</li>
+    <li><strong>Citas y referencias bibliográficas:</strong> búscalas tú; nunca entregues una referencia que no hayas comprobado que existe.</li>
+    <li><strong>Código:</strong> pruébalo antes de usarlo en producción.</li>
+    <li><strong>Cálculos:</strong> pide que muestre el procedimiento y revísalo.</li>
+    <li><strong>Pide su nivel de confianza:</strong> "¿Qué partes de tu respuesta son más inciertas?"</li>
+  </ol>
+
+  <h3>8.3 Privacidad</h3>
+  <ul>
+    <li>No pegues contraseñas, números de tarjeta ni documentos de identidad.</li>
+    <li>Anonimiza datos de terceros (clientes, estudiantes, pacientes).</li>
+    <li>Revisa las políticas de tu institución sobre el uso de IA con información interna.</li>
+  </ul>
+
+  <h3>8.4 Transparencia e integridad</h3>
+  <ul>
+    <li>En contextos académicos, sigue las normas de tu institución y declara el uso de IA cuando se requiera.</li>
+    <li>No presentes como propio un trabajo que no entiendes ni podrías defender.</li>
+    <li>Respeta los derechos de autor: no pidas reproducir libros, canciones o artículos completos; pide resúmenes, análisis u obras originales.</li>
+  </ul>
+
+  <h3>8.5 Pedirle honestidad a Claude</h3>
+  <p>Claude está diseñado para ser honesto, pero puedes reforzarlo explícitamente:</p>
+  <div class="prompt">Revisa mi plan de negocio con total honestidad. No quiero ánimo, quiero detectar fallas. Dime los 3 supuestos más débiles y qué evidencia necesitaría para sostenerlos.</div>
+
+  <div class="exercise">
+    <h4>Ejercicio 8.1 — Auditoría de una respuesta</h4>
+    <p>Pide a Claude una explicación con datos sobre un tema que conozcas bien. Luego verifica tres afirmaciones con fuentes externas. Anota qué encontraste.</p>
+    <details><summary>Reflexión</summary>
+      <p>Probablemente la mayoría sea correcta, pero es posible que algún detalle (una fecha, una cifra exacta) sea impreciso. El ejercicio entrena el hábito: confiar, pero verificar lo que importa.</p>
+    </details>
+  </div>
+  <div class="exercise">
+    <h4>Ejercicio 8.2 — Anonimizar</h4>
+    <p>Reescribe esta petición protegiendo la privacidad: "Juan Pérez, cédula 1234567, de 11-B, sacó 2.1 en matemáticas. Escríbele a su mamá, Martha Pérez."</p>
+    <details><summary>Solución propuesta</summary>
+      <div class="prompt">Escribe un mensaje respetuoso para la madre de un estudiante de grado 11 que obtuvo una calificación baja en matemáticas (2,1 sobre 5). Propón una reunión y dos acciones de apoyo. Usa [NOMBRE_ESTUDIANTE] y [NOMBRE_ACUDIENTE] para que yo los complete.</div>
+    </details>
+  </div>
+</section>
+
+<!-- ============ CAPÍTULO 9 ============ -->
+<section class="chapter" id="cap9">
+  <span class="chap-num">Capítulo 9</span>
+  <h2>Biblioteca de plantillas</h2>
+  <p class="lead">Plantillas listas para copiar. Reemplaza lo que está entre corchetes.</p>
+
+  <h3>9.1 Plantilla universal C.O.R.E.F.</h3>
+  <div class="prompt">Contexto: [quién soy, situación, público]
+Objetivo: [qué necesito y para qué]
+Restricciones: [extensión, tono, qué evitar]
+Ejemplo: [cómo luce un buen resultado, si lo tengo]
+Formato: [lista, tabla, correo, código…]</div>
+
+  <h3>9.2 Resumir un documento</h3>
+  <div class="prompt">Resume el documento adjunto para [público] que necesita [decisión o uso]. Máximo [N] puntos. Incluye al final: lo que el documento NO aclara y debería preguntarse.</div>
+
+  <h3>9.3 Explicar un concepto</h3>
+  <div class="prompt">Explícame [concepto] como si yo fuera [nivel]. Usa una analogía, un ejemplo concreto y termina con 3 preguntas para verificar mi comprensión.</div>
+
+  <h3>9.4 Revisar un texto</h3>
+  <div class="prompt">Revisa este texto como [rol: editor, profesor, cliente]. Criterios: [claridad, ortografía, persuasión…]. Primero lista los problemas por prioridad; después entrega la versión corregida conservando mi voz.</div>
+
+  <h3>9.5 Lluvia de ideas</h3>
+  <div class="prompt">Dame [N] ideas para [objetivo] considerando [restricciones: presupuesto, tiempo, público]. Agrúpalas en seguras, arriesgadas y fuera de lo común. Marca tu favorita y explica por qué.</div>
+
+  <h3>9.6 Plan de trabajo</h3>
+  <div class="prompt">Necesito lograr [meta] en [plazo] con [recursos disponibles]. Hazme un plan por semanas con tareas concretas, entregables y riesgos. Pregúntame lo que necesites antes de empezar.</div>
+
+  <h3>9.7 Crear ejercicios</h3>
+  <div class="prompt">Crea [N] ejercicios de [tema] para [nivel], con dificultad creciente, contextualizados en [contexto]. Entrega primero los enunciados y, en una sección aparte, las soluciones paso a paso.</div>
+
+  <h3>9.8 Correo profesional</h3>
+  <div class="prompt">Redacta un correo para [destinatario y relación] con el objetivo de [lograr X]. Tono [formal/cercano]. Máximo [N] palabras. Dame asunto y 2 variantes: una directa y una más diplomática.</div>
+
+  <h3>9.9 Depurar código</h3>
+  <div class="prompt">Lenguaje y versión: [ ]. Lo que espero que haga: [ ]. Lo que hace: [ ]. Código: [ ]. Error completo: [ ]. Explica la causa, corrige y sugiere una prueba para verificar.</div>
+
+  <h3>9.10 Abogado del diablo</h3>
+  <div class="prompt">Esta es mi postura: [postura]. Presenta el argumento más fuerte en contra, como lo haría un crítico informado. Luego dime qué evidencia fortalecería mi posición.</div>
+</section>
+
+<!-- ================================================= -->
+<!-- ================ PARTE II · NIVEL 2 ============== -->
+<!-- ================================================= -->
+<div class="part-divider" id="parte2">
+  <span class="kicker">Parte II · Nivel 2</span>
+  <h2>Claude como asistente de trabajo</h2>
+  <p>De conversar a actuar: organizar tus archivos, usar tus aplicaciones, navegar por ti y automatizar tareas que se repiten.</p>
+</div>
+
+<section class="chapter" id="intro2" style="border-top:none;margin-top:16px">
+  <span class="chap-num">Introducción al nivel 2</span>
+  <h2>Qué cambia en este nivel</h2>
+  <p class="lead">En la Parte I, Claude te devolvía texto que tú copiabas y usabas. En el nivel 2, Claude <strong>hace el trabajo directamente</strong>: lee tus carpetas, mueve y renombra archivos, crea hojas de cálculo reales, consulta tu correo o tu calendario, abre páginas web y ejecuta tareas a una hora fija.</p>
+  <table>
+    <tr><th></th><th>Nivel 1 (Parte I)</th><th>Nivel 2 (Parte II)</th></tr>
+    <tr><td>Qué recibes</td><td>Texto en el chat</td><td>Archivos, cambios hechos, acciones cumplidas</td></tr>
+    <tr><td>Dónde trabaja</td><td>Solo en la conversación</td><td>Tus carpetas, tus apps, el navegador</td></tr>
+    <tr><td>Tu papel</td><td>Copiar y pegar</td><td>Dar permisos, aprobar y revisar</td></tr>
+    <tr><td>Riesgo principal</td><td>Información incorrecta</td><td>Cambios no deseados en tus archivos o cuentas</td></tr>
+  </table>
+  <p>Los cuatro "superpoderes" del nivel 2:</p>
+  <ol>
+    <li><strong>Acceso a carpetas</strong> de tu computador (capítulo 11).</li>
+    <li><strong>Conectores</strong> con tus aplicaciones: Google Drive, Gmail, Calendar, GitHub, Notion, etc. (capítulo 12).</li>
+    <li><strong>Navegador y control del equipo</strong> para sitios y programas sin conector (capítulo 14).</li>
+    <li><strong>Automatización</strong>: código, archivos reales, habilidades reutilizables y tareas programadas (capítulos 15 y 16).</li>
+  </ol>
+  <div class="box note"><span class="label">Antes de empezar</span>
+    <p>Muchas de estas funciones requieren un <strong>plan de pago</strong> y la <strong>app de escritorio</strong>. Los menús y nombres cambian con frecuencia. Lo que aquí se describe fue verificado en noviembre de 2026 con el centro de ayuda oficial; si algo no coincide, consulta <a href="https://support.claude.com" target="_blank" rel="noopener">support.claude.com</a>.</p>
+  </div>
+</section>
+
+<!-- ============ CAPÍTULO 10 ============ -->
+<section class="chapter" id="cap10">
+  <span class="chap-num">Capítulo 10</span>
+  <h2>Preparar tu equipo</h2>
+  <div class="box objectives"><span class="label">Objetivos</span>
+    <ul>
+      <li>Saber qué instalar y qué no hace falta instalar.</li>
+      <li>Instalar la app de escritorio paso a paso.</li>
+      <li>Dejar listo el entorno para los capítulos siguientes.</li>
+    </ul>
+  </div>
+
+  <h3>10.1 ¿Qué necesito instalar?</h3>
+  <table>
+    <tr><th>Programa</th><th>¿Es obligatorio?</th><th>Para qué sirve</th></tr>
+    <tr><td><strong>App de escritorio de Claude</strong></td><td>Sí, para el nivel 2</td><td>Trabajar con tus carpetas, extensiones locales, control del equipo y el navegador integrado.</td></tr>
+    <tr><td>Extensión <strong>Claude in Chrome</strong></td><td>Opcional</td><td>Que Claude actúe en tu propio Chrome, con tus sesiones iniciadas.</td></tr>
+    <tr><td>Cliente de sincronización (Google Drive para escritorio, OneDrive, Dropbox)</td><td>Opcional</td><td>Que las carpetas que Claude organiza estén también en la nube (capítulo 13).</td></tr>
+    <tr><td>Git y GitHub Desktop</td><td>Opcional</td><td>Llevar control de versiones de tus materiales y publicar páginas como esta guía.</td></tr>
+    <tr><td>Python, Office, etc.</td><td>No</td><td>Claude trabaja en su propio espacio en la nube, que ya tiene Python y herramientas de documentos. No necesitas instalarlas tú.</td></tr>
+  </table>
+
+  <h3>10.2 Requisitos</h3>
+  <ul>
+    <li><strong>Sistema:</strong> macOS 13 (Ventura) o superior, Windows 10 o superior. Linux (Ubuntu 22.04+ o Debian 12+) está en beta, sin control del equipo ni dictado.</li>
+    <li><strong>Cuenta:</strong> el chat funciona en todos los planes; el trabajo con carpetas, tareas programadas y Claude Code requiere un plan de pago (Pro, Max, Team o Enterprise).</li>
+    <li><strong>Equipo:</strong> conexión estable a internet y algo de espacio libre en disco.</li>
+  </ul>
+
+  <h3>10.3 Instalar la app de escritorio</h3>
+  <ol class="steps">
+    <li><strong>Descarga.</strong> Entra a <a href="https://claude.ai/download" target="_blank" rel="noopener">claude.ai/download</a> y elige tu sistema operativo. Descarga siempre desde el sitio oficial, nunca desde enlaces de terceros.</li>
+    <li><strong>Instala.</strong> En Windows, abre el instalador descargado. En Mac, abre el archivo y arrastra Claude a <em>Aplicaciones</em>.</li>
+    <li><strong>Abre e inicia sesión</strong> con la misma cuenta que usas en la web. Tus conversaciones y Proyectos aparecerán automáticamente.</li>
+    <li><strong>Revisa la configuración.</strong> Abre <em>Configuración</em> y recorre las secciones: conectores, extensiones de escritorio, memoria y permisos. No actives nada todavía; solo identifica dónde está cada cosa.</li>
+    <li><strong>Prueba.</strong> Escribe: <code>¿Qué puedes hacer en este equipo y qué permisos necesitarías?</code> Claude te explicará lo que tiene disponible en tu caso.</li>
+  </ol>
+
+  <h3>10.4 Instalar Claude in Chrome (opcional)</h3>
+  <ol class="steps">
+    <li>Abre la Chrome Web Store y busca la extensión oficial <strong>Claude</strong>, publicada por <strong>Anthropic</strong>. Verifica el editor antes de instalar.</li>
+    <li>Haz clic en <em>Añadir a Chrome</em> y fija el ícono en la barra.</li>
+    <li>Inicia sesión con tu cuenta de Claude.</li>
+    <li>Revisa los permisos por sitio: puedes decidir en qué páginas puede actuar.</li>
+  </ol>
+  <p>Guía oficial: <a href="https://support.claude.com/en/articles/12012173-get-started-with-claude-in-chrome" target="_blank" rel="noopener">Get started with Claude in Chrome</a>.</p>
+
+  <h3>10.5 Prepara una carpeta de trabajo</h3>
+  <p>Antes de dar acceso a todo tu disco, crea una carpeta dedicada, por ejemplo <code>Documentos/Claude-Trabajo</code>, con subcarpetas <code>entrada</code>, <code>salida</code> y <code>respaldo</code>. Da acceso solo a ella al principio. Cuando ganes confianza, amplía.</p>
+
+  <div class="exercise">
+    <h4>Ejercicio 10.1 — Tu entorno listo</h4>
+    <p>Instala la app de escritorio, crea la carpeta de trabajo y pídele a Claude que la liste. Comprueba que solo ve lo que tú autorizaste.</p>
+    <details><summary>Qué deberías observar</summary>
+      <p>La app te mostrará una solicitud de permiso con la ruta exacta. Tras aprobarla, Claude podrá listar el contenido de esa carpeta y de nada más. Si te pide acceso a otra carpeta, verás una nueva solicitud: tú siempre decides.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ============ CAPÍTULO 11 ============ -->
+<section class="chapter" id="cap11">
+  <span class="chap-num">Capítulo 11</span>
+  <h2>Organizar documentos</h2>
+  <div class="box objectives"><span class="label">Objetivos</span>
+    <ul>
+      <li>Dar acceso a carpetas de forma segura.</li>
+      <li>Aplicar el flujo inventario → propuesta → aprobación → ejecución.</li>
+      <li>Ordenar, renombrar, convertir y extraer datos de muchos archivos a la vez.</li>
+    </ul>
+  </div>
+
+  <h3>11.1 Cómo trabaja Claude con tus archivos</h3>
+  <p>Cuando conectas una carpeta, Claude puede leer, crear, renombrar y mover archivos dentro de ella. Para tareas pesadas (convertir 200 PDF, por ejemplo) copia los archivos a su espacio en la nube, los procesa y devuelve el resultado a tu carpeta. Las acciones delicadas, como borrar, piden tu aprobación. Una práctica aún más segura: pide que <strong>en lugar de borrar mueva los archivos a una carpeta <code>_por_borrar</code></strong> y elimínalos tú después de revisarlos.</p>
+
+  <h3>11.2 El flujo seguro en cuatro pasos</h3>
+  <div class="flow"><span>1. Inventario</span><b>→</b><span>2. Propuesta</span><b>→</b><span>3. Tu aprobación</span><b>→</b><span>4. Ejecución y reporte</span></div>
+  <div class="prompt">Tengo acceso a la carpeta "Descargas". Paso 1: haz un inventario (cuántos archivos, de qué tipo, tamaño total, duplicados aparentes). Paso 2: propón una estructura de carpetas y reglas de nombre. NO muevas nada todavía; espera mi aprobación.</div>
+  <p>Cuando revises la propuesta y estés de acuerdo:</p>
+  <div class="prompt">Aprobado, con un cambio: los PDF de facturas van en "Finanzas/2026". Ejecuta y al final entrégame una tabla con nombre original, nombre nuevo y ubicación, para poder revertir si hace falta.</div>
+  <div class="box note"><span class="label">Por qué la tabla final</span><p>Esa tabla es tu "deshacer". Si algo no te gusta, puedes pedir: "Revierte los cambios usando la tabla de antes".</p></div>
+
+  <h3>11.3 Recetas para docentes y profesionales</h3>
+  <h4>Renombrar con un patrón</h4>
+  <div class="prompt">En la carpeta "Parciales-escaneados" hay archivos con nombres como "IMG_2034.pdf". Ábrelos, lee el encabezado de cada uno (curso y número de parcial) y renómbralos así: Curso_ParcialN_AAAA-MM-DD.pdf. Si no puedes leer algún encabezado, no lo renombres y dímelo.</div>
+  <h4>Extraer datos de muchos documentos a una hoja de cálculo</h4>
+  <div class="prompt">En "Hojas-de-vida" hay 40 PDF. Crea un Excel con una fila por persona: nombre, formación más alta, años de experiencia y correo. Marca en amarillo las celdas donde no encontraste el dato. Guárdalo en "salida".</div>
+  <h4>Convertir formatos en lote</h4>
+  <div class="prompt">Convierte todos los .docx de "Guías-2025" a PDF, conservando el nombre, y ponlos en "Guías-2025/PDF". No modifiques los originales.</div>
+  <h4>Encontrar algo entre cientos de archivos</h4>
+  <div class="prompt">Busca en "Documentos-Universidad" todos los archivos que mencionen "acreditación" o "registro calificado". Hazme una lista con la ruta, la fecha y una frase de contexto de cada uno.</div>
+  <h4>Unificar un material disperso</h4>
+  <div class="prompt">Tengo los talleres de Cálculo Multivariado en varios .docx y .pdf dentro de "Taller-*". Únelos en un solo documento con índice, numeración continua de ejercicios y las soluciones al final.</div>
+
+  <h3>11.4 Buenas prácticas</h3>
+  <ul>
+    <li><strong>Copia de respaldo primero</strong> en tareas grandes: "antes de empezar, copia la carpeta a respaldo/".</li>
+    <li><strong>Prueba con pocos archivos:</strong> "hazlo solo con los 5 primeros y muéstrame el resultado".</li>
+    <li><strong>Pide no tocar originales</strong> cuando conviertas o resumas: los resultados van a una carpeta nueva.</li>
+    <li><strong>Datos personales:</strong> si la carpeta contiene información de estudiantes, aplica las políticas de tu institución (capítulo 8).</li>
+  </ul>
+
+  <div class="exercise">
+    <h4>Ejercicio 11.1 — Ordena tus descargas</h4>
+    <p>Aplica el flujo de cuatro pasos a tu carpeta de Descargas (o a una copia). No apruebes la primera propuesta: pide al menos un ajuste antes de ejecutar.</p>
+    <details><summary>Lista de control</summary>
+      <ul class="checklist">
+        <li>¿Pediste inventario antes de mover nada?</li>
+        <li>¿Ajustaste la propuesta antes de aprobar?</li>
+        <li>¿Recibiste la tabla de cambios para revertir?</li>
+        <li>¿Revisaste al menos tres archivos al azar en su nueva ubicación?</li>
+      </ul>
+    </details>
+  </div>
+  <div class="exercise">
+    <h4>Ejercicio 11.2 — De 30 PDF a una tabla</h4>
+    <p>Escribe un prompt para extraer de 30 facturas en PDF: proveedor, fecha, valor y NIT, hacia un Excel con un total al final.</p>
+    <details><summary>Solución propuesta</summary>
+      <div class="prompt">En "Facturas-octubre" hay unas 30 facturas en PDF. Crea "facturas_octubre.xlsx" en "salida" con columnas: archivo, proveedor, NIT, fecha (AAAA-MM-DD) y valor total (número, sin símbolos). Agrega una fila final con la suma usando una fórmula de Excel, no un valor escrito. Si un dato no es legible, deja la celda vacía y resáltala. Al terminar, dime cuántas facturas procesaste y cuáles tuvieron problemas.</div>
+    </details>
+  </div>
+</section>
+
+<!-- ============ CAPÍTULO 12 ============ -->
+<section class="chapter" id="cap12">
+  <span class="chap-num">Capítulo 12</span>
+  <h2>Conectar tus aplicaciones</h2>
+  <div class="box objectives"><span class="label">Objetivos</span>
+    <ul>
+      <li>Distinguir conectores en la nube de extensiones de escritorio.</li>
+      <li>Conectar Google Drive, Gmail y Calendar paso a paso.</li>
+      <li>Combinar varias aplicaciones en una sola tarea.</li>
+    </ul>
+  </div>
+
+  <h3>12.1 Dos tipos de conexiones</h3>
+  <table>
+    <tr><th></th><th>Conectores (en la nube)</th><th>Extensiones de escritorio (locales)</th></tr>
+    <tr><td>Qué son</td><td>Servicios en línea en los que inicias sesión</td><td>Programas que corren en tu computador</td></tr>
+    <tr><td>Ejemplos</td><td>Google Drive, Gmail, Calendar, Notion, Slack, GitHub</td><td>Carpetas locales, una base de datos local, aplicaciones instaladas</td></tr>
+    <tr><td>Dónde funcionan</td><td>Web, celular y app de escritorio</td><td>Solo en la app de escritorio (y Claude Code)</td></tr>
+    <tr><td>Dónde se agregan</td><td><em>Personalizar → Conectores</em></td><td><em>Configuración → App de escritorio → Extensiones (Administrar)</em></td></tr>
+  </table>
+  <p>Ambos usan un estándar abierto llamado <strong>MCP</strong> (Model Context Protocol), que permite que cualquier empresa o desarrollador cree conexiones para Claude.</p>
+
+  <h3>12.2 Conectar Google Drive, Gmail y Calendar</h3>
+  <ol class="steps">
+    <li>En Claude, abre <em>Personalizar → Conectores</em> (o el directorio de conectores).</li>
+    <li>Busca <strong>Google Drive</strong> y haz clic en <em>Conectar</em>.</li>
+    <li>Se abrirá la página de Google: elige tu cuenta (personal o institucional) y revisa los permisos que se solicitan.</li>
+    <li>Acepta. Volverás a Claude con el conector activo.</li>
+    <li>Repite con <strong>Gmail</strong> y <strong>Google Calendar</strong> si los necesitas.</li>
+    <li>Prueba: <code>Busca en mi Drive el documento más reciente que tenga "multivariado" en el título y resúmelo.</code></li>
+  </ol>
+  <div class="box note"><span class="label">Cuentas institucionales</span><p>Si usas el correo de tu universidad, el administrador de Google Workspace puede haber bloqueado aplicaciones externas. Si la conexión falla, consulta con la oficina de sistemas.</p></div>
+
+  <h3>12.3 Extensiones de escritorio</h3>
+  <ol class="steps">
+    <li>Abre la app de escritorio → <em>Configuración</em> → sección de la app de escritorio → <em>Extensiones</em> → <em>Administrar</em>.</li>
+    <li>Explora el directorio y elige una extensión de un editor confiable.</li>
+    <li>Instálala con un clic y revisa a qué carpetas o programas tendrá acceso.</li>
+    <li>Reinicia la conversación y pregunta qué nuevas herramientas tiene Claude.</li>
+  </ol>
+  <p>Guía oficial: <a href="https://support.claude.com/en/articles/11725091-when-to-use-desktop-and-web-connectors" target="_blank" rel="noopener">When to use desktop and web connectors</a>.</p>
+
+  <h3>12.4 Tareas que combinan aplicaciones</h3>
+  <div class="prompt">Revisa mi Gmail de esta semana y encuentra los correos de estudiantes que pidan cambio de fecha de examen. Hazme una tabla con nombre, curso y motivo. Luego revisa mi Calendar y propón dos horarios libres para un supletorio la próxima semana. No envíes ningún correo: deja borradores para que yo los revise.</div>
+  <div class="prompt">Toma el documento "Programa Cálculo Multivariado 2027-1" de mi Drive, extrae las fechas de los parciales y crea los eventos en mi Calendar con un recordatorio una semana antes. Muéstrame la lista antes de crearlos.</div>
+  <div class="box good"><span class="label">Fíjate</span><p>"No envíes", "deja borradores" y "muéstrame antes de crearlos" son frenos de seguridad. Úsalos siempre que la acción afecte a otras personas.</p></div>
+
+  <h3>12.5 Plugins y habilidades</h3>
+  <p>Un <strong>plugin</strong> agrupa conectores, habilidades y comandos para una profesión o tarea. Una <strong>habilidad</strong> (skill) es un conjunto de instrucciones reutilizable. Puedes crear las tuyas pidiéndolo en la conversación (capítulo 15).</p>
+
+  <div class="exercise">
+    <h4>Ejercicio 12.1 — Tu primera tarea multiaplicación</h4>
+    <p>Conecta Drive y Calendar. Pide a Claude que lea un documento con fechas (un cronograma) y proponga los eventos, sin crearlos aún.</p>
+    <details><summary>Qué revisar</summary>
+      <p>Compara cada fecha propuesta con el documento original. Fíjate en zonas horarias y en fechas ambiguas (por ejemplo, 03/04 puede ser 3 de abril o 4 de marzo). Si hay dudas, pide: "usa formato colombiano día/mes".</p>
+    </details>
+  </div>
+</section>
+
+<!-- ============ CAPÍTULO 13 ============ -->
+<section class="chapter" id="cap13">
+  <span class="chap-num">Capítulo 13</span>
+  <h2>Sincronizar sin perder nada</h2>
+  <div class="box objectives"><span class="label">Objetivos</span>
+    <ul>
+      <li>Entender qué se sincroniza solo y qué no.</li>
+      <li>Elegir la estrategia de sincronización adecuada.</li>
+      <li>Trabajar desde varios dispositivos sin conflictos.</li>
+    </ul>
+  </div>
+
+  <h3>13.1 Qué se sincroniza automáticamente</h3>
+  <table>
+    <tr><th>Elemento</th><th>¿Se sincroniza entre web, celular y escritorio?</th></tr>
+    <tr><td>Conversaciones y Proyectos</td><td>Sí, con tu cuenta</td></tr>
+    <tr><td>Memoria y preferencias</td><td>Sí, si la memoria está activada</td></tr>
+    <tr><td>Artefactos y documentos creados por Claude</td><td>Sí, quedan en tu cuenta</td></tr>
+    <tr><td>Conectores en la nube</td><td>Sí</td></tr>
+    <tr><td>Archivos de tus carpetas locales</td><td><strong>No.</strong> Viven en tu computador.</td></tr>
+    <tr><td>Extensiones de escritorio</td><td>No. Se instalan por computador.</td></tr>
+  </table>
+
+  <h3>13.2 Tres estrategias para tus archivos</h3>
+  <h4>Estrategia A — Carpeta sincronizada en la nube (recomendada)</h4>
+  <ol class="steps">
+    <li>Instala <strong>Google Drive para escritorio</strong> (o OneDrive / Dropbox).</li>
+    <li>Elige el modo <em>Duplicar archivos</em> (mirror) para que los archivos estén físicamente en tu disco, no solo "en línea".</li>
+    <li>Crea dentro tu carpeta de trabajo, por ejemplo <code>Mi unidad/Claude-Trabajo</code>.</li>
+    <li>Da acceso a Claude a esa carpeta desde la app de escritorio.</li>
+    <li>Lo que Claude organice en tu equipo se subirá solo a la nube, y verás los cambios desde el celular o desde otro computador.</li>
+  </ol>
+  <div class="box note"><span class="label">Archivos "solo en línea"</span><p>Si usas el modo de transmisión (streaming), algunos archivos aparecen pero no están descargados. Si Claude no puede abrirlos, márcalos como "disponibles sin conexión".</p></div>
+
+  <h4>Estrategia B — Trabajar directo en la nube con conectores</h4>
+  <p>Si tus documentos ya están en Google Drive, puedes trabajar con el conector (capítulo 12) sin depender de tu computador. Funciona incluso desde el celular. A cambio, las operaciones en lote sobre carpetas suelen ser más cómodas con la estrategia A.</p>
+
+  <h4>Estrategia C — Control de versiones con Git y GitHub</h4>
+  <p>Ideal para materiales que evolucionan: guías HTML, código, apuntes en Markdown, animaciones. Cada cambio queda registrado y puedes volver a cualquier versión.</p>
+  <ol class="steps">
+    <li>Instala <strong>GitHub Desktop</strong> e inicia sesión.</li>
+    <li>Clona tu repositorio (por ejemplo, el de esta guía) en tu carpeta de trabajo.</li>
+    <li>Pide a Claude los cambios sobre los archivos de esa carpeta.</li>
+    <li>En GitHub Desktop revisa las diferencias, escribe un mensaje y pulsa <em>Commit</em> y luego <em>Push</em>.</li>
+    <li>GitHub Pages publicará la nueva versión en uno o dos minutos.</li>
+  </ol>
+  <p>Claude también puede hacer el commit y el push por ti si conectas GitHub, pero revisar las diferencias tú mismo es un buen hábito.</p>
+
+  <h3>13.3 Trabajar desde varios dispositivos</h3>
+  <ul>
+    <li>Puedes empezar una tarea desde el celular y que Claude trabaje con tu computador si la conversación está <strong>vinculada a tu computador</strong> y la app de escritorio está abierta y en línea.</li>
+    <li>Si el computador está apagado o suspendido, Claude no podrá llegar a tus carpetas locales; sí podrá usar los conectores en la nube.</li>
+    <li>Evita editar el mismo archivo en dos lugares a la vez: la sincronización puede crear copias en conflicto.</li>
+  </ul>
+
+  <div class="exercise">
+    <h4>Ejercicio 13.1 — Elige tu estrategia</h4>
+    <p>Para cada caso, elige A, B o C: (1) organizar 500 fotos de la cámara; (2) revisar un documento compartido por un colega en Drive desde el celular; (3) mantener la guía HTML de tu curso.</p>
+    <details><summary>Solución</summary>
+      <p>(1) <strong>A</strong>: operación en lote sobre archivos locales que luego se sincronizan. (2) <strong>B</strong>: el documento ya está en la nube y no necesitas tu computador. (3) <strong>C</strong>: necesitas historial de versiones y publicación en GitHub Pages.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ============ CAPÍTULO 14 ============ -->
+<section class="chapter" id="cap14">
+  <span class="chap-num">Capítulo 14</span>
+  <h2>Navegador y control del equipo</h2>
+  <div class="box objectives"><span class="label">Objetivos</span>
+    <ul>
+      <li>Saber cuándo usar el navegador o el control del equipo en lugar de un conector.</li>
+      <li>Delegar tareas en sitios web y programas instalados con seguridad.</li>
+    </ul>
+  </div>
+
+  <h3>14.1 El orden de preferencia</h3>
+  <div class="flow"><span>1. Conector</span><b>→</b><span>2. Navegador</span><b>→</b><span>3. Control del equipo</span></div>
+  <p>Un conector es más rápido y confiable. Cuando no existe (por ejemplo, la plataforma Moodle de tu universidad o un portal administrativo), Claude puede usar un navegador. Para programas instalados que no son web (un software de escritorio), puede usar el control del equipo.</p>
+
+  <h3>14.2 Los navegadores disponibles</h3>
+  <table>
+    <tr><th>Navegador</th><th>Qué es</th><th>Cuándo usarlo</th></tr>
+    <tr><td>Navegador integrado</td><td>Un panel dentro de la app de escritorio, con sesiones propias</td><td>Tareas donde prefieres separar a Claude de tu Chrome personal</td></tr>
+    <tr><td>Claude in Chrome</td><td>Tu propio Chrome, con tus sesiones iniciadas</td><td>Sitios en los que ya iniciaste sesión</td></tr>
+  </table>
+  <p>Puedes elegir el navegador preferido en la configuración.</p>
+
+  <h3>14.3 Ejemplos de tareas en el navegador</h3>
+  <div class="prompt">Abre el aula virtual del curso en Moodle, ve al banco de preguntas y crea una categoría "Parcial 2 – Derivadas parciales". Luego carga estas 5 preguntas de opción múltiple [preguntas]. Detente antes de guardar la última para que yo la revise.</div>
+  <div class="prompt">Entra al portal de la biblioteca, busca libros de cálculo vectorial publicados desde 2018 y hazme una tabla con título, autor, año y disponibilidad.</div>
+
+  <h3>14.4 Control del equipo (computer use)</h3>
+  <p>Claude toma capturas de pantalla y hace clic, escribe y se desplaza en tus aplicaciones de escritorio. Es más lento que las otras vías, pero sirve cuando no hay alternativa.</p>
+  <ul>
+    <li>Disponible en la app de escritorio para Mac y Windows (no en Linux).</li>
+    <li>Pide permiso por aplicación; tú decides a cuáles puede acceder.</li>
+    <li>No uses tu equipo mientras Claude lo controla, para no interferir.</li>
+  </ul>
+  <div class="prompt">Abre GeoGebra Clásico, construye el paraboloide z = x² + y², agrega un plano tangente en (1, 1, 2) con un deslizador para mover el punto y guarda el archivo como "plano_tangente.ggb" en Claude-Trabajo/salida.</div>
+
+  <h3>14.5 Precauciones</h3>
+  <ul>
+    <li><strong>Pagos y envíos:</strong> pide siempre que se detenga antes de pagar, enviar o publicar.</li>
+    <li><strong>Contenido de páginas:</strong> una página web puede tener texto que intente dar instrucciones a la IA. Claude está diseñado para tratarlo como información y no como órdenes, pero mantente atento a acciones inesperadas.</li>
+    <li><strong>Contraseñas:</strong> ingrésalas tú cuando el sitio las pida.</li>
+  </ul>
+
+  <div class="exercise">
+    <h4>Ejercicio 14.1 — ¿Qué vía usar?</h4>
+    <p>Decide la vía para: (a) leer tus eventos de Google Calendar; (b) descargar el listado de estudiantes de un portal académico sin conector; (c) exportar una gráfica desde un programa de escritorio.</p>
+    <details><summary>Solución</summary>
+      <p>(a) Conector de Calendar. (b) Navegador, preferiblemente Chrome si ya tienes la sesión iniciada. (c) Control del equipo. Y recuerda: el listado contiene datos personales; guárdalo solo donde tu institución lo permita.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ============ CAPÍTULO 15 ============ -->
+<section class="chapter" id="cap15">
+  <span class="chap-num">Capítulo 15</span>
+  <h2>Automatizar más allá del texto</h2>
+  <div class="box objectives"><span class="label">Objetivos</span>
+    <ul>
+      <li>Pedir resultados en forma de archivos reales y programas.</li>
+      <li>Convertir procesos repetidos en habilidades reutilizables.</li>
+    </ul>
+  </div>
+
+  <h3>15.1 Lo que Claude puede producir además de texto</h3>
+  <table>
+    <tr><th>Producto</th><th>Ejemplo de petición</th></tr>
+    <tr><td>Hojas de cálculo con fórmulas</td><td>"Crea la planilla de notas con pesos 30-30-40 y fórmulas para la definitiva."</td></tr>
+    <tr><td>Documentos y presentaciones</td><td>"Haz las diapositivas de la clase de multiplicadores de Lagrange."</td></tr>
+    <tr><td>Gráficas y análisis de datos</td><td>"Analiza este CSV de resultados y grafica la distribución por pregunta."</td></tr>
+    <tr><td>Páginas web e interactivos</td><td>"Crea un applet HTML para explorar curvas de nivel."</td></tr>
+    <tr><td>Programas y scripts</td><td>"Escribe un script que genere 30 versiones distintas del mismo examen."</td></tr>
+    <tr><td>Videos y animaciones</td><td>"Anima con Manim la definición de derivada direccional."</td></tr>
+    <tr><td>PDF, imágenes, conversiones</td><td>"Une estos PDF, numera las páginas y comprímelo para enviarlo por correo."</td></tr>
+  </table>
+
+  <h3>15.2 El código como herramienta invisible</h3>
+  <p>No necesitas saber programar. Cuando la tarea lo requiere, Claude escribe y ejecuta código en su espacio de trabajo y te entrega el resultado. Si quieres reutilizarlo, pide el script:</p>
+  <div class="prompt">Genera 4 versiones del parcial con los mismos temas pero distintos valores numéricos en cada ejercicio, cada una con su clave de respuestas. Entrégame los PDF y también el script, para que pueda generar nuevas versiones el próximo semestre.</div>
+
+  <h3>15.3 Habilidades: enseñarle tu proceso una sola vez</h3>
+  <p>Si haces la misma tarea con frecuencia y siempre explicas lo mismo (tu estilo, tu formato, tus pasos), conviértela en una <strong>habilidad</strong>. La próxima vez Claude la aplicará automáticamente cuando la tarea coincida.</p>
+  <ol class="steps">
+    <li>Haz la tarea una vez en una conversación, ajustando hasta que el resultado sea exactamente lo que quieres.</li>
+    <li>Pide: <code>Convierte lo que hicimos en una habilidad reutilizable.</code></li>
+    <li>Claude te mostrará una propuesta con nombre, descripción e instrucciones. Revísala y guárdala.</li>
+    <li>La próxima vez basta con decir: <code>Hazme el taller de la semana 6</code>.</li>
+    <li>Para mejorarla: <code>Actualiza la habilidad para que incluya siempre una pregunta de aplicación.</code></li>
+  </ol>
+  <p>Ideas de habilidades para docentes: generar talleres con tu formato, crear guiones de videoclase, preparar rúbricas, escribir correos a estudiantes con tu estilo.</p>
+
+  <h3>15.4 Diseñar una automatización</h3>
+  <p>Antes de automatizar, responde estas preguntas (puedes pedirle a Claude que te las haga):</p>
+  <ol>
+    <li><strong>Disparador:</strong> ¿cuándo debe ocurrir? (a pedido, cada lunes, al llegar un archivo).</li>
+    <li><strong>Entradas:</strong> ¿de dónde salen los datos? (carpeta, Drive, correo, sitio web).</li>
+    <li><strong>Proceso:</strong> ¿qué pasos se hacen siempre igual?</li>
+    <li><strong>Salida:</strong> ¿qué se entrega y dónde?</li>
+    <li><strong>Control:</strong> ¿en qué punto necesitas revisar antes de continuar?</li>
+  </ol>
+
+  <div class="exercise">
+    <h4>Ejercicio 15.1 — Tu primera habilidad</h4>
+    <p>Elige un material que preparas cada semana. Hazlo con Claude hasta que quede como te gusta y conviértelo en habilidad. Pruébala en una conversación nueva.</p>
+    <details><summary>Criterio de éxito</summary>
+      <p>En la conversación nueva, con una petición corta, el resultado debería salir con tu formato sin que tengas que repetir instrucciones. Si algo falla, pide que actualice la habilidad, no que corrija solo ese resultado.</p>
+    </details>
+  </div>
+  <div class="exercise">
+    <h4>Ejercicio 15.2 — Diseña una automatización</h4>
+    <p>Usa las cinco preguntas de 15.4 para diseñar: "Cada viernes, resumir los correos de estudiantes de la semana".</p>
+    <details><summary>Solución propuesta</summary>
+      <ul>
+        <li><strong>Disparador:</strong> viernes a las 4:00 p. m.</li>
+        <li><strong>Entradas:</strong> Gmail, correos de la semana con dominio institucional estudiantil.</li>
+        <li><strong>Proceso:</strong> agrupar por curso y tipo (dudas, excusas, solicitudes), detectar urgentes.</li>
+        <li><strong>Salida:</strong> un resumen con tabla y borradores de respuesta para los urgentes.</li>
+        <li><strong>Control:</strong> nunca enviar; solo borradores.</li>
+      </ul>
+      <p>Esto se programa en el capítulo siguiente.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ============ CAPÍTULO 16 ============ -->
+<section class="chapter" id="cap16">
+  <span class="chap-num">Capítulo 16</span>
+  <h2>Tareas programadas</h2>
+  <div class="box objectives"><span class="label">Objetivos</span>
+    <ul>
+      <li>Crear tareas que Claude ejecuta solo, a una hora fija.</li>
+      <li>Saber cuándo necesitan tu computador encendido.</li>
+    </ul>
+  </div>
+
+  <h3>16.1 Cómo funcionan</h3>
+  <p>Describes la tarea una vez y Claude la ejecuta con la frecuencia que elijas (cada hora, diaria, semanal, días hábiles o manual). Cada ejecución es una sesión nueva: tú revisas el resultado cuando quieras y puedes recibir una notificación.</p>
+  <ul>
+    <li>Las tareas que solo usan la nube y los conectores corren <strong>aunque tu computador esté apagado</strong>.</li>
+    <li>Las que necesitan tus <strong>archivos o aplicaciones locales</strong> requieren el computador encendido, en línea y con la app de escritorio abierta.</li>
+    <li>Requieren un plan de pago.</li>
+  </ul>
+
+  <h3>16.2 Crear una tarea programada</h3>
+  <ol class="steps">
+    <li>En una conversación, describe la tarea y la frecuencia: <code>Cada lunes a las 6:30 a. m., revisa mi Calendar y mi Gmail y hazme un resumen de la semana: clases, reuniones, entregas y correos pendientes.</code></li>
+    <li>Responde las preguntas que Claude te haga (zona horaria, qué incluir, dónde dejar el resultado).</li>
+    <li>Revisa la propuesta: nombre, horario e instrucciones. Confirma.</li>
+    <li>Elige el modo de aprobación: que pida permiso antes de actuar, o que actúe automáticamente. Empieza pidiendo permiso.</li>
+    <li>Ejecútala una vez manualmente para comprobar que funciona.</li>
+  </ol>
+  <p>Guía oficial: <a href="https://support.claude.com/en/articles/13854387-schedule-recurring-tasks-in-claude-cowork" target="_blank" rel="noopener">Schedule recurring tasks</a>.</p>
+
+  <h3>16.3 Escribe la instrucción para alguien que no estuvo</h3>
+  <p>Cada ejecución empieza sin recordar la conversación donde la creaste. Escribe la instrucción completa, como si se la dejaras a un asistente nuevo.</p>
+  <div class="compare">
+    <div class="box bad"><span class="label">Incompleta</span><p>"Haz lo del resumen como te dije."</p></div>
+    <div class="box good"><span class="label">Completa</span><p>"Revisa los correos recibidos en Gmail en los últimos 7 días que vengan de estudiantes. Agrúpalos por curso. Entrega una tabla con remitente, asunto y acción sugerida. Crea borradores de respuesta solo para los urgentes. No envíes nada."</p></div>
+  </div>
+
+  <h3>16.4 Ideas de tareas programadas</h3>
+  <ul>
+    <li><strong>Diario:</strong> agenda del día con preparativos para cada clase.</li>
+    <li><strong>Semanal:</strong> resumen de correos de estudiantes con borradores.</li>
+    <li><strong>Semanal:</strong> ordenar la carpeta de Descargas con las reglas del capítulo 11.</li>
+    <li><strong>Mensual:</strong> revisar novedades en un tema de investigación y entregar un resumen con fuentes.</li>
+    <li><strong>Por semestre (manual):</strong> crear la estructura de carpetas y el cronograma de un curso nuevo.</li>
+  </ul>
+
+  <div class="exercise">
+    <h4>Ejercicio 16.1 — Programa tu resumen semanal</h4>
+    <p>Convierte el diseño del ejercicio 15.2 en una tarea programada. Ejecútala manualmente una vez y ajusta la instrucción según el resultado.</p>
+    <details><summary>Lista de control</summary>
+      <ul class="checklist">
+        <li>¿La instrucción se entiende sin la conversación original?</li>
+        <li>¿Incluye un freno ("no envíes nada")?</li>
+        <li>¿La zona horaria es la correcta (Bogotá, UTC−5)?</li>
+        <li>¿Sabes dónde verás el resultado?</li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<!-- ============ CAPÍTULO 17 ============ -->
+<section class="chapter" id="cap17">
+  <span class="chap-num">Capítulo 17</span>
+  <h2>Seguridad en el nivel 2</h2>
+  <div class="box objectives"><span class="label">Objetivos</span>
+    <ul>
+      <li>Aplicar el principio de mínimo permiso.</li>
+      <li>Saber cómo revertir errores.</li>
+    </ul>
+  </div>
+  <p>Cuando Claude actúa en tus archivos y cuentas, los errores ya no son solo de redacción. Estas reglas reducen el riesgo casi a cero:</p>
+  <ol>
+    <li><strong>Mínimo permiso.</strong> Da acceso a la carpeta concreta, no al disco entero; conecta solo las aplicaciones que vas a usar.</li>
+    <li><strong>Propuesta antes de acción.</strong> En tareas nuevas, pide siempre el plan antes de ejecutar.</li>
+    <li><strong>Frenos explícitos.</strong> "No envíes", "no publiques", "no pagues", "detente antes de guardar".</li>
+    <li><strong>Respaldo.</strong> Copia de seguridad antes de cambios grandes; Git para materiales importantes.</li>
+    <li><strong>Registro de cambios.</strong> Pide siempre la tabla de lo que hizo.</li>
+    <li><strong>Revisa los permisos periódicamente.</strong> Desconecta lo que ya no uses en <em>Configuración</em>.</li>
+    <li><strong>Datos de terceros.</strong> Notas, listados y correos de estudiantes son datos personales: sigue la política de tratamiento de datos de tu institución y la Ley 1581 de 2012 en Colombia.</li>
+  </ol>
+
+  <h3>Lista de verificación antes de una automatización</h3>
+  <ul class="checklist">
+    <li>¿Sé exactamente qué carpetas y aplicaciones tocará?</li>
+    <li>¿Hay un punto en el que reviso antes de una acción irreversible?</li>
+    <li>¿Tengo un respaldo o una forma de deshacer?</li>
+    <li>¿La probé con pocos datos antes de usarla con todos?</li>
+    <li>¿Involucra datos personales? ¿Está permitido por mi institución?</li>
+  </ul>
+
+  <div class="exercise">
+    <h4>Proyecto integrador del nivel 2</h4>
+    <p>Prepara el inicio de un semestre con Claude: (1) crea la estructura de carpetas del curso en tu carpeta sincronizada; (2) extrae las fechas del programa del curso y créalas en tu Calendar; (3) genera el primer taller con tu habilidad; (4) programa un resumen semanal de correos. Al terminar, anota cuánto tiempo te tomó y qué pasos aún harías tú mismo.</p>
+  </div>
+</section>
+
+<!-- ============ CAPÍTULO 18 ============ -->
+<section class="chapter" id="cap18">
+  <span class="chap-num">Capítulo 18</span>
+  <h2>Conectar Claude con tu GitHub</h2>
+  <div class="box objectives"><span class="label">Objetivos</span>
+    <ul>
+      <li>Dar a Claude acceso a tus repositorios de forma segura y controlada.</li>
+      <li>Saber qué hace Claude y qué te corresponde a ti.</li>
+      <li>Trabajar en ciclo: pedir un cambio, revisarlo y verlo publicado.</li>
+    </ul>
+  </div>
+
+  <h3>18.1 ¿Para qué conectar GitHub?</h3>
+  <p>Sin conexión, Claude te entrega archivos (por ejemplo, un <code>.zip</code>) y tú los subes a mano. Con GitHub conectado, Claude puede <strong>subir los cambios directamente</strong> a tus repositorios: actualizar esta guía, corregir un applet, agregar un taller. Si el repositorio está publicado con GitHub Pages, el sitio se actualiza solo en uno o dos minutos.</p>
+  <table>
+    <tr><th></th><th>Sin conexión</th><th>Con GitHub conectado</th></tr>
+    <tr><td>Claude puede leer</td><td>Solo repositorios públicos</td><td>Los repositorios que tú autorices, incluso privados</td></tr>
+    <tr><td>Claude puede subir cambios</td><td>No</td><td>Sí, en los repositorios autorizados</td></tr>
+    <tr><td>Tu trabajo</td><td>Descargar, descomprimir y subir</td><td>Pedir, revisar y aprobar</td></tr>
+  </table>
+
+  <h3>18.2 Conectar, paso a paso</h3>
+  <ol class="steps">
+    <li><strong>Crea el repositorio en GitHub.</strong> En github.com pulsa <em>New repository</em>, ponle nombre (por ejemplo <code>guia-claude</code>), elige <em>Public</em> si lo vas a publicar con Pages y pulsa <em>Create repository</em>. Hazlo tú primero: Claude trabaja en repositorios que ya existen, pero no crea repositorios nuevos.</li>
+    <li><strong>Abre los conectores de Claude.</strong> En claude.ai, entra a la sección de conectores de la configuración (<em>Personalizar → Conectores</em>; el nombre del menú puede variar).</li>
+    <li><strong>Conecta GitHub.</strong> Búscalo, pulsa <em>Conectar</em> e inicia sesión en GitHub para autorizar.</li>
+    <li><strong>Instala la app de Claude en GitHub y elige los repositorios.</strong> GitHub te pedirá instalar la aplicación. Marca <strong>Only select repositories</strong> y elige solo los repositorios en los que quieres ayuda.</li>
+    <li><strong>Avísale a Claude.</strong> En la conversación escribe, por ejemplo: <code>Ya conecté GitHub. Trabaja en el repositorio guia-claude.</code> Claude comprobará el acceso y te dirá qué puede hacer.</li>
+    <li><strong>Activa GitHub Pages (una sola vez).</strong> En el repositorio: <em>Settings → Pages → Deploy from a branch</em>, rama <code>main</code>, carpeta <code>/ (root)</code>, <em>Save</em>.</li>
+  </ol>
+  <div class="box note"><span class="label">¿Y si el repositorio es de mi universidad?</span><p>Si el repositorio pertenece a una organización de GitHub, quien la administra debe aprobar la app de Claude. Si no ves la organización durante la instalación, consulta con el administrador.</p></div>
+
+  <h3>18.3 Quién hace qué</h3>
+  <table>
+    <tr><th>Tú</th><th>Claude</th></tr>
+    <tr><td>Crear cada repositorio nuevo</td><td>Subir archivos y cambios (commit y push)</td></tr>
+    <tr><td>Elegir a qué repositorios tiene acceso</td><td>Escribir mensajes claros en cada cambio</td></tr>
+    <tr><td>Activar GitHub Pages</td><td>Revisar que la página se vea bien antes de subirla</td></tr>
+    <tr><td>Revisar el resultado publicado</td><td>Proponer ramas o solicitudes de cambio (pull requests) cuando convenga revisar antes</td></tr>
+  </table>
+
+  <h3>18.4 El ciclo de trabajo</h3>
+  <div class="flow"><span>1. Pides el cambio</span><b>→</b><span>2. Claude lo hace y lo prueba</span><b>→</b><span>3. Lo sube a GitHub</span><b>→</b><span>4. Pages lo publica</span><b>→</b><span>5. Tú revisas</span></div>
+  <div class="prompt">En el repositorio guia-claude, agrega al capítulo 7 una sección sobre cómo usar Claude para preparar parciales de Cálculo Multivariado, con un ejemplo y un ejercicio. Revisa que se vea bien en celular y súbelo con un mensaje de commit descriptivo.</div>
+  <p>Para cambios grandes, pide un paso de revisión:</p>
+  <div class="prompt">Haz los cambios en una rama nueva y abre un pull request. No lo fusiones: quiero revisarlo primero en GitHub.</div>
+  <p>Y si algo sale mal, todo queda en el historial:</p>
+  <div class="prompt">El último cambio rompió el índice. Revierte el último commit en guia-claude y súbelo.</div>
+
+  <h3>18.5 Seguridad</h3>
+  <ul>
+    <li><strong>Nunca pegues contraseñas ni tokens de GitHub en el chat.</strong> El conector es la forma correcta de dar acceso.</li>
+    <li><strong>Da acceso solo a los repositorios necesarios</strong> (<em>Only select repositories</em>).</li>
+    <li><strong>Revisa y revoca cuando quieras:</strong> en GitHub, <em>Settings → Applications</em>, busca la app de Claude y pulsa <em>Configure</em> para cambiar repositorios o desinstalarla. En Claude puedes desconectar el conector desde la configuración.</li>
+    <li><strong>No subas datos personales</strong> a repositorios públicos: listados de estudiantes, notas o correos.</li>
+  </ul>
+
+  <h3>18.6 Si algo no funciona</h3>
+  <table>
+    <tr><th>Síntoma</th><th>Qué hacer</th></tr>
+    <tr><td>Claude dice que no tiene cuenta de GitHub vinculada</td><td>Repite los pasos 2 y 3; verifica que el conector aparezca como conectado.</td></tr>
+    <tr><td>Claude ve tu cuenta pero no el repositorio</td><td>La app no tiene acceso a ese repositorio: agrégalo en <em>Settings → Applications → Configure</em>.</td></tr>
+    <tr><td>Claude puede leer pero no subir cambios</td><td>Revisa que la app tenga permiso de escritura sobre el repositorio, o que no sea un repositorio de una organización sin aprobación.</td></tr>
+    <tr><td>El sitio no muestra los cambios</td><td>Espera dos minutos y recarga con <code>Ctrl + F5</code>; revisa la pestaña <em>Actions</em> del repositorio por si la publicación falló.</td></tr>
+  </table>
+
+  <div class="exercise">
+    <h4>Ejercicio 18.1 — Tu primer cambio publicado por Claude</h4>
+    <p>Con GitHub conectado, pídele a Claude un cambio pequeño en esta guía (por ejemplo, poner tu nombre como autor en la portada). Luego verifica tres cosas: el commit en GitHub, el mensaje que lo describe y el sitio publicado.</p>
+    <details><summary>Lista de control</summary>
+      <ul class="checklist">
+        <li>¿El commit aparece en la pestaña <em>Commits</em> del repositorio?</li>
+        <li>¿El mensaje explica claramente qué cambió?</li>
+        <li>¿El sitio de GitHub Pages muestra el cambio después de recargar?</li>
+        <li>¿Sabes cómo pedir que se revierta si no te gusta?</li>
+      </ul>
+    </details>
+  </div>
+  <div class="exercise">
+    <h4>Ejercicio 18.2 — Revisión antes de publicar</h4>
+    <p>Pide un cambio grande (por ejemplo, un capítulo nuevo) usando una rama y un pull request. Revisa las diferencias en GitHub, deja un comentario pidiendo un ajuste y, cuando estés satisfecho, fusiónalo tú.</p>
+    <details><summary>Por qué vale la pena</summary>
+      <p>El pull request te muestra línea por línea qué cambió antes de que llegue al sitio público. Es la misma práctica que usan los equipos de desarrollo profesionales y te da control total sobre lo que se publica con tu nombre.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ============ APÉNDICES ============ -->
+<section class="chapter" id="apendices">
+  <span class="chap-num">Apéndices</span>
+  <h2>Herramientas de consulta</h2>
+
+  <h3>A. Lista de verificación antes de enviar un prompt importante</h3>
+  <ul class="checklist">
+    <li>¿Dije quién soy y para quién es el resultado?</li>
+    <li>¿Expliqué para qué lo necesito?</li>
+    <li>¿Especifiqué extensión, tono y formato?</li>
+    <li>¿Incluí un ejemplo si el estilo importa?</li>
+    <li>¿Separé con etiquetas los documentos de las instrucciones?</li>
+    <li>¿Pedí que marque lo incierto o lo que debo verificar?</li>
+    <li>¿Quité datos personales o sensibles?</li>
+  </ul>
+
+  <h3>B. Glosario</h3>
+  <table>
+    <tr><th>Término</th><th>Significado</th></tr>
+    <tr><td>Prompt</td><td>La instrucción o mensaje que le das a la IA.</td></tr>
+    <tr><td>Modelo de lenguaje</td><td>Sistema de IA entrenado con texto que comprende y genera lenguaje.</td></tr>
+    <tr><td>Alucinación</td><td>Información falsa presentada con apariencia de verdad.</td></tr>
+    <tr><td>Contexto</td><td>Toda la información disponible en la conversación: tus mensajes, archivos y respuestas previas.</td></tr>
+    <tr><td>Few-shot</td><td>Técnica de dar varios ejemplos para que la IA siga un patrón.</td></tr>
+    <tr><td>Fecha de corte</td><td>Límite temporal de la información con la que se entrenó el modelo.</td></tr>
+    <tr><td>Artefacto</td><td>Contenido creado aparte del chat (documento, página, herramienta) para conservar o compartir.</td></tr>
+    <tr><td>API</td><td>Interfaz para que programas se comuniquen con Claude.</td></tr>
+    <tr><td>Conector</td><td>Conexión de Claude con un servicio en línea (Drive, Gmail, GitHub…).</td></tr>
+    <tr><td>Extensión de escritorio</td><td>Conexión que corre en tu computador y da acceso a recursos locales.</td></tr>
+    <tr><td>MCP</td><td>Model Context Protocol: estándar abierto con el que se construyen conectores y extensiones.</td></tr>
+    <tr><td>Habilidad (skill)</td><td>Paquete de instrucciones reutilizable para una tarea que se repite.</td></tr>
+    <tr><td>Plugin</td><td>Conjunto de habilidades, conectores y comandos para una tarea o profesión.</td></tr>
+    <tr><td>Tarea programada</td><td>Instrucción que Claude ejecuta sola con una frecuencia definida.</td></tr>
+    <tr><td>Repositorio</td><td>Carpeta de un proyecto en GitHub que guarda todos sus archivos y su historial de cambios.</td></tr>
+    <tr><td>Commit</td><td>Un cambio guardado en el historial, con un mensaje que explica qué se hizo.</td></tr>
+    <tr><td>Push</td><td>Subir a GitHub los commits hechos en tu computador o en el espacio de Claude.</td></tr>
+    <tr><td>GitHub Pages</td><td>Servicio gratuito de GitHub que publica un repositorio como sitio web.</td></tr>
+    <tr><td>Control del equipo</td><td>Capacidad de Claude de ver la pantalla y usar ratón y teclado en tus aplicaciones.</td></tr>
+  </table>
+
+  <h3>C. Recursos oficiales</h3>
+  <ul>
+    <li>Guía de ingeniería de prompts: <a href="https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview" target="_blank" rel="noopener">docs.claude.com — Prompt engineering</a></li>
+    <li>Centro de ayuda de la app: <a href="https://support.claude.com" target="_blank" rel="noopener">support.claude.com</a></li>
+    <li>Documentación para desarrolladores: <a href="https://docs.claude.com" target="_blank" rel="noopener">docs.claude.com</a></li>
+    <li>Descarga de la app de escritorio: <a href="https://claude.ai/download" target="_blank" rel="noopener">claude.ai/download</a></li>
+    <li>Instalar la app de escritorio: <a href="https://support.claude.com/en/articles/10065433-installing-claude-desktop" target="_blank" rel="noopener">Installing Claude Desktop</a></li>
+    <li>Conectores y extensiones: <a href="https://support.claude.com/en/articles/11725091-when-to-use-desktop-and-web-connectors" target="_blank" rel="noopener">When to use desktop and web connectors</a></li>
+    <li>Claude in Chrome: <a href="https://support.claude.com/en/articles/12012173-get-started-with-claude-in-chrome" target="_blank" rel="noopener">Get started with Claude in Chrome</a></li>
+    <li>Tareas programadas: <a href="https://support.claude.com/en/articles/13854387-schedule-recurring-tasks-in-claude-cowork" target="_blank" rel="noopener">Schedule recurring tasks</a></li>
+    <li>Sitio de Anthropic: <a href="https://www.anthropic.com" target="_blank" rel="noopener">anthropic.com</a></li>
+  </ul>
+
+  <h3>D. Reto final</h3>
+  <div class="exercise">
+    <h4>Proyecto integrador</h4>
+    <p>Elige una tarea real de tu trabajo o estudio que te tome más de una hora. Resuélvela con Claude aplicando: C.O.R.E.F. (cap. 2), al menos una técnica avanzada (cap. 3), dos rondas de iteración (cap. 4) y una verificación (cap. 8). Al final, escribe un párrafo de reflexión: ¿qué funcionó, qué no y cuánto tiempo ahorraste?</p>
+  </div>
+</section>
+
+<footer>
+  <p><strong>El Arte de Trabajar con Claude</strong> — Guía independiente, no oficial. No está afiliada, patrocinada ni respaldada por Anthropic. "Claude" y "Anthropic" son marcas de sus respectivos titulares y se mencionan solo con fines descriptivos.</p>
+  <p>Contenido bajo licencia <a href="https://creativecommons.org/licenses/by/4.0/deed.es" target="_blank" rel="noopener">Creative Commons Atribución 4.0 (CC BY 4.0)</a>. Puedes compartirlo y adaptarlo citando la fuente.</p>
+  <p>La información sobre funciones del producto puede cambiar; verifica siempre en la documentación oficial.</p>
+</footer>
+</main>
+</div>
+<div id="progress" aria-hidden="true"></div>
+<button id="toTop" aria-label="Volver arriba">↑</button>
+
+<script>
+(function(){
+  // Tema claro/oscuro
+  var root=document.documentElement;
+  try{var t=localStorage.getItem('tema');if(t)root.setAttribute('data-theme',t);}catch(e){}
+  document.getElementById('themeBtn').addEventListener('click',function(){
+    var dark=root.getAttribute('data-theme')==='dark'||(!root.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);
+    var n=dark?'light':'dark';root.setAttribute('data-theme',n);
+    try{localStorage.setItem('tema',n);}catch(e){}
+  });
+  // Menú móvil
+  var toc=document.getElementById('toc');
+  document.getElementById('menuBtn').addEventListener('click',function(){toc.classList.toggle('open');});
+  toc.addEventListener('click',function(e){if(e.target.tagName==='A')toc.classList.remove('open');});
+  // Botones de copiar
+  document.querySelectorAll('.prompt').forEach(function(p){
+    var b=document.createElement('button');b.className='btn copy';b.textContent='Copiar';
+    b.addEventListener('click',function(){
+      var txt=p.innerText.replace(/Copiar$|¡Copiado!$/,'').trim();
+      navigator.clipboard.writeText(txt).then(function(){b.textContent='¡Copiado!';setTimeout(function(){b.textContent='Copiar';},1500);});
+    });
+    p.appendChild(b);
+  });
+  // Resaltar sección activa
+  var links=[].slice.call(toc.querySelectorAll('a'));
+  var obs=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){links.forEach(function(l){l.classList.toggle('active',l.getAttribute('href')==='#'+en.target.id);});}});},{rootMargin:'-20% 0px -70% 0px'});
+  document.querySelectorAll('section.chapter, section.index-page').forEach(function(s){obs.observe(s);});
+
+  // Navegación anterior / siguiente al final de cada capítulo
+  var order=links.map(function(l){return l.getAttribute('href').slice(1);}).filter(function(id){return id!=='indice';});
+  order.forEach(function(id,i){
+    var sec=document.getElementById(id);if(!sec)return;
+    var nav=document.createElement('nav');nav.className='chap-nav';nav.setAttribute('aria-label','Navegación entre capítulos');
+    function mk(j,cls,lbl){if(j<0||j>=order.length)return null;var a=document.createElement('a');a.className=cls;a.href='#'+order[j];
+      var t=toc.querySelector('a[href="#'+order[j]+'"]').textContent;a.innerHTML='<small>'+lbl+'</small>'+t;return a;}
+    var p=mk(i-1,'prev','← Anterior'),n=mk(i+1,'next','Siguiente →');
+    var up=document.createElement('a');up.className='up';up.href='#indice';up.textContent='Índice';up.style.border='none';up.style.background='none';up.style.color='var(--accent)';
+    if(p)nav.appendChild(p);nav.appendChild(up);if(n)nav.appendChild(n);
+    sec.appendChild(nav);
+  });
+
+  // Buscador del índice lateral (títulos y palabras clave de cada capítulo)
+  var search=document.getElementById('tocSearch'),empty=document.getElementById('tocEmpty');
+  var norm=function(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');};
+  var texts={};links.forEach(function(l){var s=document.getElementById(l.getAttribute('href').slice(1));texts[l.getAttribute('href')]=norm(l.textContent+' '+(s?s.textContent:''));});
+  search.addEventListener('input',function(){
+    var q=norm(search.value.trim()),any=false;
+    links.forEach(function(l){var ok=!q||texts[l.getAttribute('href')].indexOf(q)>-1;l.parentElement.style.display=ok?'':'none';if(ok)any=true;});
+    toc.querySelectorAll('li.toc-part').forEach(function(p){p.style.display=q?'none':'';});
+    empty.hidden=any;
+  });
+
+  // Barra de progreso y botón "volver arriba"
+  var bar=document.getElementById('progress'),top=document.getElementById('toTop');
+  function onScroll(){var h=document.documentElement;var max=h.scrollHeight-h.clientHeight;bar.style.width=(max>0?(h.scrollTop/max*100):0)+'%';top.classList.toggle('show',h.scrollTop>600);}
+  addEventListener('scroll',onScroll,{passive:true});onScroll();
+  top.addEventListener('click',function(){scrollTo({top:0,behavior:'smooth'});});
+})();
+</script>
+</body>
+</html>

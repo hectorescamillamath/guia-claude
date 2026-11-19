@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Página no encontrada · El Arte de Trabajar con Claude</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+:root{--bg:#faf7f2;--ink:#1f1d1a;--muted:#6b655c;--accent:#b85c38}
+@media (prefers-color-scheme: dark){:root{--bg:#171614;--ink:#ece7df;--muted:#a39c90;--accent:#e08a63}}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--ink);font:17px/1.6 system-ui,sans-serif;padding:16px;text-align:center}
+h1{font-family:Georgia,serif;font-size:2.4rem;margin:.2em 0}
+p{color:var(--muted)}
+a{display:inline-block;margin-top:12px;padding:10px 18px;border-radius:10px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600}
+</style>
+</head>
+<body>
+<main>
+  <p style="letter-spacing:.15em;text-transform:uppercase;color:var(--accent);font-weight:600;font-size:.8rem">Error 404</p>
+  <h1>Esta página no existe</h1>
+  <p>Puede que el enlace esté mal escrito o que la sección haya cambiado de lugar.</p>
+  <a id="home" href="./">Ir al índice de la guía</a>
+</main>
+<script>
+// En GitHub Pages de proyecto, la guía vive en /nombre-del-repo/
+(function(){var parts=location.pathname.split('/').filter(Boolean);
+if(location.hostname.endsWith('github.io')&&parts.length){document.getElementById('home').href='/'+parts[0]+'/#indice';}
+else{document.getElementById('home').href='/#indice';}})();
+</script>
+</body>
+</html>
