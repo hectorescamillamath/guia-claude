@@ -4,7 +4,7 @@ Guía práctica en formato libro para usar Claude de forma profesional: fundamen
 
 > Guía **independiente y no oficial**. No está afiliada ni respaldada por Anthropic.
 
-**Leer en línea:** `https://TU-USUARIO.github.io/NOMBRE-DEL-REPO/` (reemplaza con tus datos después de publicar).
+**Leer en línea:** https://hectorescamillamath.github.io/guia-claude/
 
 ## Contenido
 
